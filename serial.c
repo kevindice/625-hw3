@@ -5,6 +5,12 @@
 
 double myclock();
 
+int compare(const void* a, const void* b) {
+    const char **ia = (const char **)a;
+    const char **ib = (const char **)b;
+    return strcmp(*ia, *ib);
+}
+
 int main()
 {
  /*  int nwords, maxwords = 50000;
@@ -46,7 +52,7 @@ int main()
 
 // Read in the lines from the data file
 
-   fd = fopen( "./test100.txt", "r" );
+   fd = fopen( "./test10-4.txt", "r" );
    nlines = -1;
    do {
       err = fscanf( fd, "%[^\n]\n", line[++nlines] );
@@ -57,15 +63,20 @@ int main()
    printf( "Read in %d lines averaging %.0lf chars/line\n", nlines, nchars / nlines);
 
 
+// sort
+
+   qsort(word, nwords, sizeof(char *), compare);
+
+
 // Loop over the word list
 
    tstart = myclock();  // Set the zero time
    tstart = myclock();  // Start the clock
 
-   for( i = 0; i < nwords; i++ ) {
+   for( i = 0; i < nwords; i += 125 ) {
 
       for( k = 0; k < nlines; k++ ) {
-         if( strstr( line[k], word[i] ) != NULL ) count[i]++;
+         #include "unrolled_loop_body_125.c"
       }
 
    }
