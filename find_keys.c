@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <omp.h>
 
 double myclock();
 
@@ -12,7 +11,7 @@ int main()
    int nwords, maxwords = 50000; */
    int nwords, maxwords = 50000;
    int nlines, maxlines = 1000000;
-   int i, k, n, err, *count, nthreads = 24;
+   int i, k, n, err, *count;
    double nchars = 0;
    double tstart, ttotal;
    FILE *fd;
@@ -63,9 +62,6 @@ int main()
    tstart = myclock();  // Set the zero time
    tstart = myclock();  // Start the clock
 
-//   omp_set_num_threads( nthreads );
-
-#pragma omp parallel for schedule( dynamic ) private(i,k)
    for( i = 0; i < nwords; i++ ) {
 
       for( k = 0; k < nlines; k++ ) {
@@ -75,8 +71,8 @@ int main()
    }
 
    ttotal = myclock() - tstart;
-   printf( "The run on %d cores took %lf seconds for %d words\n",
-           nthreads, ttotal, nwords);
+   printf( "The serial run took %lf seconds for %d words\n",
+           ttotal, nwords);
 
 // Dump out the word counts
 
@@ -84,8 +80,8 @@ int main()
    for( i = 0; i < nwords; i++ ) {
       fprintf( fd, "%d %s %d\n", i, word[i], count[i] );
    }
-   fprintf( fd, "The run on %d cores took %lf seconds for %d words\n",
-           nthreads, ttotal, nwords);
+   fprintf( fd, "The serial run took %lf seconds for %d words\n",
+           ttotal, nwords);
    fclose( fd );
 
 }
