@@ -47,7 +47,7 @@ int main()
 
 // Read in the lines from the data file
 
-   fd = fopen( "./test.txt", "r" );
+   fd = fopen( "./test100.txt", "r" );
    nlines = -1;
    do {
       err = fscanf( fd, "%[^\n]\n", line[++nlines] );
