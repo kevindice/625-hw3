@@ -1,2 +1,5 @@
 a.out
 test.txt
+find_keys
+find_keys_mpi
+find_keys_omp
