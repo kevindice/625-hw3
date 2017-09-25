@@ -1,5 +1,5 @@
 a.out
-test.txt
+test*.txt
 find_keys_serial
 find_keys_mpi
 find_keys_omp
