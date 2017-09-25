@@ -35,7 +35,7 @@ int main()
 
 // Read in the dictionary words
 
-   fd = fopen( "/scratch/dan/words_4-8chars_50k", "r" );
+   fd = fopen( "./keywords.txt", "r" );
    nwords = -1;
    do {
       err = fscanf( fd, "%[^\n]\n", word[++nwords] );
@@ -47,7 +47,7 @@ int main()
 
 // Read in the lines from the data file
 
-   fd = fopen( "/bulk/daveturner/wiki/wiki.1Mshort", "r" );
+   fd = fopen( "./test.txt", "r" );
    nlines = -1;
    do {
       err = fscanf( fd, "%[^\n]\n", line[++nlines] );
