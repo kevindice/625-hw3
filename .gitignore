@@ -1,8 +1,8 @@
 a.out
 test*.txt
-find_keys_serial
-find_keys_mpi
-find_keys_omp
+serial
+mpi
+omp
 keywords.txt
 wiki_dump.txt
 wiki.out

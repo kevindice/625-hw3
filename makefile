@@ -1,10 +1,10 @@
 all: serial openmp mpi
 
-serial: find_keys_serial.c
-	cc find_keys_serial.c -o find_keys_serial
+serial: serial.c
+	cc serial.c -o serial
 
-openmp: find_keys_omp.c
-	cc find_keys_omp.c -fopenmp -o find_keys_omp
+openmp: omp.c
+	cc omp.c -fopenmp -o omp
 	
-mpi: find_keys_mpi.c
-	mpicc find_keys_mpi.c -o find_keys_mpi
+mpi: mpi.c
+	mpicc mpi.c -o mpi
