@@ -6,16 +6,6 @@
 
 double myclock();
 
-static int compare(const void * a, const void * b)
-{
-    return strcmp (*(const char **) a, *(const char **) b);
-}
-
-void sort(const char **arr, int n)
-{
-    qsort ((char * []) arr, n, sizeof (const char *), compare);
-}
-
 int main()
 {
  /*  int nwords, maxwords = 50000;
@@ -42,9 +32,10 @@ int main()
       line[i] = malloc( 2001 );
    }
 
+
 // Read in the dictionary words
 
-   fd = fopen( "/homes/dan/625/keywords.txt", "r" );
+   fd = fopen( "/scratch/dan/words_4-8chars_50k", "r" );
    nwords = -1;
    do {
       err = fscanf( fd, "%[^\n]\n", word[++nwords] );
@@ -53,14 +44,10 @@ int main()
 
    printf( "Read in %d words\n", nwords);
 
-// Sorting word list
-
-   sort(word, nwords);
-
 
 // Read in the lines from the data file
 
-   fd = fopen( "/homes/kmdice/625/hw3/test.txt", "r" );
+   fd = fopen( "/bulk/daveturner/wiki/wiki.1Mshort", "r" );
    nlines = -1;
    do {
       err = fscanf( fd, "%[^\n]\n", line[++nlines] );
