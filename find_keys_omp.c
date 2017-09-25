@@ -12,7 +12,7 @@ int main()
    int nwords, maxwords = 50000; */
    int nwords, maxwords = 50000;
    int nlines, maxlines = 1000000;
-   int i, k, n, err, *count, nthreads = 24;
+   int i, k, n, err, *count, nthreads = 4;
    double nchars = 0;
    double tstart, ttotal;
    FILE *fd;
@@ -63,7 +63,7 @@ int main()
    tstart = myclock();  // Set the zero time
    tstart = myclock();  // Start the clock
 
-//   omp_set_num_threads( nthreads );
+   omp_set_num_threads( nthreads );
 
 #pragma omp parallel for schedule( dynamic ) private(i,k)
    for( i = 0; i < nwords; i++ ) {
