@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <mpi.h>
 #include "unrolled_int_linked_list.c"
 
 double myclock();
@@ -16,6 +17,7 @@ int main(int argc, char * argv[])
 {
  /*  int nwords, maxwords = 50000;
    int nwords, maxwords = 50000; */
+   int my_rank, num_procs, mpi_error_code;
    int nwords, maxwords = 50000;
    int nlines, maxlines = 1000000;
    int i, k, n, err, *count;
@@ -30,6 +32,10 @@ int main(int argc, char * argv[])
       printf("Usage: %s <job id> <input size>", argv[0]);
       return -1;
    }
+
+   mpi_error_code = MPI_Init(&argc, &argv); /* Start up MPI */
+   mpi_error_code = MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+   mpi_error_code = MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 
 // Malloc space for the word list and lines
 

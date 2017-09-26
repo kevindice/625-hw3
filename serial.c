@@ -4,6 +4,9 @@
 #include <time.h>
 #include "unrolled_int_linked_list.c"
 
+#define MAX_KEYWORD_LENGTH 10
+#define MAX_LINE_LENGTH 2001
+
 double myclock();
 
 int compare(const void* a, const void* b) {
@@ -33,8 +36,15 @@ int main(int argc, char * argv[])
 
 // Malloc space for the word list and lines
 
-   word = (char **) malloc( maxwords * sizeof( char * ) );
    count = (int *) malloc( maxwords * sizeof( int ) );
+
+   // Contiguous memory ftw
+   word = (char **) malloc( maxwords * sizeof( char * ) );
+   word[0] = (char *) malloc(sizeof(char) * maxwords * MAX_KEYWORD_LENGTH);
+   for(i = 0; i < maxwords; i++){
+       word[i] = (*word + i * MAX_KEYWORD_LENGTH);
+   }
+
    hithead = (struct Node**) malloc( maxwords * sizeof(struct Node *) );
    hitend = (struct Node**) malloc( maxwords * sizeof(struct Node *) );
    for( i = 0; i < maxwords; i++ ) {
@@ -43,9 +53,11 @@ int main(int argc, char * argv[])
       count[i] = 0;
    }
 
+   // Contiguous memory...yay
    line = (char **) malloc( maxlines * sizeof( char * ) );
+   line[0] = (char *) malloc(sizeof(char) * maxlines * MAX_LINE_LENGTH);
    for( i = 0; i < maxlines; i++ ) {
-      line[i] = malloc( 2001 );
+      line[i] = (*line + i * MAX_LINE_LENGTH);
    }
 
 
@@ -127,18 +139,15 @@ int main(int argc, char * argv[])
 // Clean up after ourselves
 
    for(i = 0; i < maxwords; i++ ) {
-      free(word[i]);
       destroy(hithead[i]);
    }
+   free(word[0]);
    free(word);
    free(hithead);
    free(hitend);
 
-   for(i = 0; i < maxlines; i++ ) {
-      free(line[i]);
-   }
+   free(line[0]);
    free(line);
-
 }
 
 double myclock() {
