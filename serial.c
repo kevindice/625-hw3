@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include "unrolled_int_linked_list.c"
 
 double myclock();
 
@@ -22,6 +23,8 @@ int main(int argc, char * argv[])
    double tstart, ttotal;
    FILE *fd;
    char **word, **line;
+   struct Node** hithead;
+   struct Node** hitend;
 
    if(argc != 3){
       printf("Usage: %s <job id> <input size>", argv[0]);
@@ -32,8 +35,11 @@ int main(int argc, char * argv[])
 
    word = (char **) malloc( maxwords * sizeof( char * ) );
    count = (int *) malloc( maxwords * sizeof( int ) );
+   hithead = (struct Node**) malloc( maxwords * sizeof(struct Node *) );
+   hitend = (struct Node**) malloc( maxwords * sizeof(struct Node *) );
    for( i = 0; i < maxwords; i++ ) {
       word[i] = malloc( 10 );
+      hithead[i] = hitend[i] = (struct Node *) calloc(1, sizeof(struct Node));
       count[i] = 0;
    }
 
@@ -81,10 +87,13 @@ int main(int argc, char * argv[])
    tstart = myclock();  // Set the zero time
    tstart = myclock();  // Start the clock
 
-   for( i = 0; i < nwords; i += 125 ) {
+   for( i = 0; i < nwords; i++ ) {
 
       for( k = 0; k < nlines; k++ ) {
-         #include "unrolled_loop_body_125.c"
+         if( strstr( line[k], word[i] ) != NULL ) {
+	    count[i]++;
+	    hitend[i] = add(hitend[i], k);
+	 } 
       }
 
    }
@@ -99,11 +108,36 @@ int main(int argc, char * argv[])
    sprintf(output_file, "/homes/kmdice/625/hw3/output/wiki-%s.out", argv[1]);
    fd = fopen( output_file, "w" );
    for( i = 0; i < nwords; i++ ) {
-      fprintf( fd, "%d %s %d\n", i, word[i], count[i] );
+      if(count[i] != 0){
+         fprintf( fd, "%d %s (%d): ", i, word[i], count[i] );
+         int *line_numbers;
+         int len;
+         toArray(hithead[i], &line_numbers, &len);
+         for (k = 0; k < len - 1; k++) {
+            fprintf( fd, "%d, ", line_numbers[k]);
+         }
+         fprintf( fd, "%d\n", line_numbers[len - 1]);
+         free(line_numbers);
+      }
    }
    fprintf( fd, "The serial run took %lf seconds for %d words over %d lines\n",
            ttotal, nwords, nlines);
    fclose( fd );
+
+// Clean up after ourselves
+
+   for(i = 0; i < maxwords; i++ ) {
+      free(word[i]);
+      destroy(hithead[i]);
+   }
+   free(word);
+   free(hithead);
+   free(hitend);
+
+   for(i = 0; i < maxlines; i++ ) {
+      free(line[i]);
+   }
+   free(line);
 
 }
 

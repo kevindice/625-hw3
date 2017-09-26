@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#define MAX_ELEMENTS 16
+#define MAX_ELEMENTS 64
 
 /*
  * Unrolled integer linked list
@@ -106,7 +106,7 @@ void destroy(struct Node *n)
 }
 
 // Test various functions of the linked list implimentation
-int main()
+int testing_stuff()
 {
 
     struct Node* head = NULL;
