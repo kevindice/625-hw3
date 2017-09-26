@@ -93,6 +93,18 @@ struct Node* add(struct Node *n, int x)
     return n;
 }
 
+// Destroy a list given the head node
+void destroy(struct Node *n)
+{
+    while (n != NULL)
+    {
+        struct Node* next = n->next;
+	//printf("Destroying node with first element %d\n", n->array[0]);
+	free(n);
+	n = next;
+    }
+}
+
 // Test various functions of the linked list implimentation
 int main()
 {
@@ -128,6 +140,7 @@ int main()
     third->array[4] = 13;
     third->array[5] = 19;
 
+    // Test the add function
     int j;
     struct Node* current = third;
     for (j = 25; j < 52; j++)
@@ -154,6 +167,8 @@ int main()
         printf("%d\n", my_array[i]);
     }
     free(my_array);
+
+    destroy(head);
 
     return 0;
 }
