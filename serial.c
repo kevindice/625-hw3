@@ -23,6 +23,11 @@ int main(int argc, char * argv[])
    FILE *fd;
    char **word, **line;
 
+   if(argc != 3){
+      printf("Usage: %s <job id> <input size>", argv[0]);
+      return -1;
+   }
+
 // Malloc space for the word list and lines
 
    word = (char **) malloc( maxwords * sizeof( char * ) );
@@ -52,13 +57,16 @@ int main(int argc, char * argv[])
 
 // Read in the lines from the data file
 
-   fd = fopen( "/homes/kmdice/625/hw3/test10-4.txt", "r" );
+   char *input_file = (char*)malloc(50 * sizeof(char));
+   sprintf(input_file, "/homes/kmdice/625/hw3/test10-%s.txt", argv[2]);
+   fd = fopen( input_file, "r" );
    nlines = -1;
    do {
       err = fscanf( fd, "%[^\n]\n", line[++nlines] );
       if( line[nlines] != NULL ) nchars += (double) strlen( line[nlines] );
    } while( err != EOF && nlines < maxlines);
    fclose( fd );
+   free(input_file);
 
    printf( "Read in %d lines averaging %.0lf chars/line\n", nlines, nchars / nlines);
 
