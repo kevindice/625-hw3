@@ -87,9 +87,9 @@ int main(int argc, char * argv[])
    tstart = myclock();  // Set the zero time
    tstart = myclock();  // Start the clock
 
-   for( i = 0; i < nwords; i++ ) {
 
-      for( k = 0; k < nlines; k++ ) {
+   for( k = 0; k < nlines; k++ ) {
+      for( i = 0; i < nwords; i++ ) {
          if( strstr( line[k], word[i] ) != NULL ) {
 	    count[i]++;
 	    hitend[i] = add(hitend[i], k);
@@ -99,7 +99,7 @@ int main(int argc, char * argv[])
    }
 
    ttotal = myclock() - tstart;
-   printf( "The serial run took %lf seconds for %d words over %d lines\n",
+   printf( "The flipped serial run took %lf seconds for %d words over %d lines\n",
            ttotal, nwords, nlines);
 
 // Dump out the word counts
@@ -120,7 +120,7 @@ int main(int argc, char * argv[])
          free(line_numbers);
       }
    }
-   fprintf( fd, "The serial run took %lf seconds for %d words over %d lines\n",
+   fprintf( fd, "The flipped serial run took %lf seconds for %d words over %d lines\n",
            ttotal, nwords, nlines);
    fclose( fd );
 

@@ -1,7 +1,10 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#define MAX_ELEMENTS 64
+
+#ifndef MAX_ELEMENTS
+#define MAX_ELEMENTS 128
+#endif
 
 /*
  * Unrolled integer linked list
