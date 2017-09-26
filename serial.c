@@ -99,7 +99,7 @@ int main(int argc, char * argv[])
    }
 
    ttotal = myclock() - tstart;
-   printf( "The flipped serial run took %lf seconds for %d words over %d lines\n",
+   printf( "The serial run took %lf seconds for %d words over %d lines\n",
            ttotal, nwords, nlines);
 
 // Dump out the word counts
@@ -109,7 +109,7 @@ int main(int argc, char * argv[])
    fd = fopen( output_file, "w" );
    for( i = 0; i < nwords; i++ ) {
       if(count[i] != 0){
-         fprintf( fd, "%d %s (%d): ", i, word[i], count[i] );
+         fprintf( fd, "%s: ", word[i] );
          int *line_numbers;
          int len;
          toArray(hithead[i], &line_numbers, &len);
@@ -120,7 +120,7 @@ int main(int argc, char * argv[])
          free(line_numbers);
       }
    }
-   fprintf( fd, "The flipped serial run took %lf seconds for %d words over %d lines\n",
+   fprintf( fd, "The serial run took %lf seconds for %d words over %d lines\n",
            ttotal, nwords, nlines);
    fclose( fd );
 
