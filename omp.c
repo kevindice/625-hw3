@@ -5,10 +5,6 @@
 #include <omp.h>
 #include "unrolled_int_linked_list.c"
 
-#ifndef THREADS
-#define THREADS=4
-#endif
-
 double myclock();
 
 int compare(const void* a, const void* b) {
@@ -23,7 +19,7 @@ int main(int argc, char * argv[])
    int nwords, maxwords = 50000; */
    int nwords, maxwords = 50000;
    int nlines, maxlines = 1000000;
-   int i, k, n, err, *count, nthreads = THREADS;
+   int i, k, n, err, *count, nthreads = atoi(argv[3]);
    double nchars = 0;
    double tstart, ttotal;
    FILE *fd;
@@ -31,8 +27,8 @@ int main(int argc, char * argv[])
    struct Node** hithead;
    struct Node** hitend;
 
-   if(argc != 3){
-      printf("Usage: %s <job id> <input size>", argv[0]);
+   if(argc != 4){
+      printf("Usage: %s <job id> <input size> <number of threads>", argv[0]);
       return -1;
    }
 
