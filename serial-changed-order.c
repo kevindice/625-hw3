@@ -40,7 +40,7 @@ int main()
 
 // Read in the dictionary words
 
-   fd = fopen( "./keywords.txt", "r" );
+   fd = fopen( "/homes/kmdice/625/hw3/keywords.txt", "r" );
    nwords = -1;
    do {
       err = fscanf( fd, "%[^\n]\n", word[++nwords] );
@@ -52,7 +52,7 @@ int main()
 
 // Read in the lines from the data file
 
-   fd = fopen( "./test10-4.txt", "r" );
+   fd = fopen( "/homes/kmdice/625/hw3/test10-4.txt", "r" );
    nlines = -1;
    do {
       err = fscanf( fd, "%[^\n]\n", line[++nlines] );

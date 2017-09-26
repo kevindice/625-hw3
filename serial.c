@@ -11,7 +11,7 @@ int compare(const void* a, const void* b) {
     return strcmp(*ia, *ib);
 }
 
-int main()
+int main(int argc, char * argv[])
 {
  /*  int nwords, maxwords = 50000;
    int nwords, maxwords = 50000; */
@@ -40,7 +40,7 @@ int main()
 
 // Read in the dictionary words
 
-   fd = fopen( "./keywords.txt", "r" );
+   fd = fopen( "/homes/kmdice/625/hw3/keywords.txt", "r" );
    nwords = -1;
    do {
       err = fscanf( fd, "%[^\n]\n", word[++nwords] );
@@ -52,7 +52,7 @@ int main()
 
 // Read in the lines from the data file
 
-   fd = fopen( "./test10-4.txt", "r" );
+   fd = fopen( "/homes/kmdice/625/hw3/test10-4.txt", "r" );
    nlines = -1;
    do {
       err = fscanf( fd, "%[^\n]\n", line[++nlines] );
@@ -82,17 +82,19 @@ int main()
    }
 
    ttotal = myclock() - tstart;
-   printf( "The serial run took %lf seconds for %d words\n",
-           ttotal, nwords);
+   printf( "The serial run took %lf seconds for %d words over %d lines\n",
+           ttotal, nwords, nlines);
 
 // Dump out the word counts
 
-   fd = fopen( "wiki.out", "w" );
+   char *output_file = (char*)malloc(50 * sizeof(char));
+   sprintf(output_file, "/homes/kmdice/625/hw3/output/wiki-%s.out", argv[1]);
+   fd = fopen( output_file, "w" );
    for( i = 0; i < nwords; i++ ) {
       fprintf( fd, "%d %s %d\n", i, word[i], count[i] );
    }
-   fprintf( fd, "The serial run took %lf seconds for %d words\n",
-           ttotal, nwords);
+   fprintf( fd, "The serial run took %lf seconds for %d words over %d lines\n",
+           ttotal, nwords, nlines);
    fclose( fd );
 
 }
