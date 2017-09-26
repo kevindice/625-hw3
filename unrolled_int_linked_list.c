@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
 #define MAX_ELEMENTS 16
 
 /*
@@ -20,7 +21,7 @@
 struct Node
 {
     int numElements;
-    int array[maxElements];
+    int array[MAX_ELEMENTS];
     struct Node *next;
 };
 
@@ -30,9 +31,10 @@ void printUnrolledList(struct Node *n)
 {
     while (n != NULL)
     {
-        for (int i=0; i< n->numElements; i++)
+        int i;
+        for (i=0; i< n->numElements; i++)
 	{
-	    printf("%d", n->array[i]);
+	    printf("%d\n", n->array[i]);
 	}
 	n = n->next;
     }
@@ -45,6 +47,7 @@ int getLength(struct Node *n)
     while(n != NULL)
     {
         len += n->numElements;
+	n = n->next;
     }
     return len;
 }
@@ -52,14 +55,72 @@ int getLength(struct Node *n)
 // Covert linked list to array
 void toArray(struct Node *n, int **array, int *length)
 {
-    length = getLength(n);
-    array = malloc(length * sizeof(int));
+    *length = getLength(n);
+    *array =  (int *) malloc(*length * sizeof(int));
 
     int pos = 0;
     while (n != NULL)
     {
-	memcpy(array + pos, n->array, n->numElements * sizeof(int));
+	memcpy(*array + pos, n->array, n->numElements * sizeof(int));
 	pos += n->numElements;
 	n = n->next;
     }
+}
+
+// Test various functions of the linked list implimentation
+int testing_shit()
+{
+
+    struct Node* head = NULL;
+    struct Node* second = NULL;
+    struct Node* third = NULL;
+
+    head = (struct Node*)malloc(sizeof(struct Node));
+    second = (struct Node*)malloc(sizeof(struct Node));
+    third = (struct Node*)malloc(sizeof(struct Node));
+
+    head->numElements = 4;
+    head->array[0] = 3;
+    head->array[1] = 7;
+    head->array[2] = 6;
+    head->array[3] = 9;
+
+    second->numElements = 7;
+    second->array[0] = 1;
+    second->array[1] = 2;
+    second->array[2] = 3;
+    second->array[3] = 4;
+    second->array[4] = 5;
+    second->array[5] = 6;
+    second->array[6] = 7;
+
+    third->numElements = 6;
+    third->array[0] = 3;
+    third->array[1] = 7;
+    third->array[2] = 6;
+    third->array[3] = 9;
+    third->array[4] = 13;
+    third->array[5] = 19;
+
+    // Link together
+    head->next = second;
+    second->next = third;
+
+    printf("Print linked list directly:\n\n");
+    printUnrolledList(head);
+
+    int *my_array;
+    int length;
+    toArray(head, &my_array, &length);
+
+    printf("The length of my array is %d.\n", length);
+    printf("The contents of my array is:\n");
+    int i;
+    for(i=0; i < length; i ++)
+    {
+        printf("%d\n", my_array[i]);
+    }
+    free(my_array);
+
+    return 0;
 }
