@@ -56,7 +56,7 @@ int getLength(struct Node *n)
 void toArray(struct Node *n, int **array, int *length)
 {
     *length = getLength(n);
-    *array =  (int *) malloc(*length * sizeof(int));
+    *array =  (int *) calloc(*length, sizeof(int));
 
     int pos = 0;
     while (n != NULL)
@@ -67,17 +67,43 @@ void toArray(struct Node *n, int **array, int *length)
     }
 }
 
+// Add an integer to the list, returning the current node
+// if not yet full or the new node if one is created
+struct Node* add(struct Node *n, int x)
+{
+    // We are given an empty list, so create the head node
+    if(n == NULL)
+    {
+        struct Node* new_head_node = NULL;
+	new_head_node = (struct Node*) calloc(1, sizeof(struct Node));
+	return add(new_head_node, x);
+    }
+
+    // We are given a full list, so create a new node insert into it
+    if(n->numElements == MAX_ELEMENTS)
+    {
+        struct Node* new_node = NULL;
+	new_node = (struct Node*) calloc(1, sizeof(struct Node));
+	n->next = new_node;
+	return add(new_node, x);
+    }
+
+    n->array[n->numElements] = x;
+    n->numElements += 1;
+    return n;
+}
+
 // Test various functions of the linked list implimentation
-int testing_shit()
+int main()
 {
 
     struct Node* head = NULL;
     struct Node* second = NULL;
     struct Node* third = NULL;
 
-    head = (struct Node*)malloc(sizeof(struct Node));
-    second = (struct Node*)malloc(sizeof(struct Node));
-    third = (struct Node*)malloc(sizeof(struct Node));
+    head = (struct Node*)calloc(1, sizeof(struct Node));
+    second = (struct Node*)calloc(1, sizeof(struct Node));
+    third = (struct Node*)calloc(1, sizeof(struct Node));
 
     head->numElements = 4;
     head->array[0] = 3;
@@ -101,6 +127,13 @@ int testing_shit()
     third->array[3] = 9;
     third->array[4] = 13;
     third->array[5] = 19;
+
+    int j;
+    struct Node* current = third;
+    for (j = 25; j < 52; j++)
+    {
+        current = add(current, j);
+    }
 
     // Link together
     head->next = second;
