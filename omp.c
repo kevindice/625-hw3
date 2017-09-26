@@ -19,7 +19,7 @@ int main(int argc, char * argv[])
    int nwords, maxwords = 50000; */
    int nwords, maxwords = 50000;
    int nlines, maxlines = 1000000;
-   int i, k, n, err, *count;
+   int i, k, n, err, *count, nthreads = 4;
    double nchars = 0;
    double tstart, ttotal;
    FILE *fd;
@@ -88,6 +88,8 @@ int main(int argc, char * argv[])
    tstart = myclock();  // Set the zero time
    tstart = myclock();  // Start the clock
 
+   omp_set_num_threads( nthreads );
+
 #pragma omp parallel for schedule( dynamic ) private(i,k)
    for( k = 0; k < nlines; k++ ) {
       for( i = 0; i < nwords; i++ ) {
@@ -121,8 +123,8 @@ int main(int argc, char * argv[])
          free(line_numbers);
       }
    }
-   fprintf( fd, "The flipped serial run took %lf seconds for %d words over %d lines\n",
-           ttotal, nwords, nlines);
+   fprintf( fd, "The flipped serial run took %lf seconds for %d words over %d lines on %d\n",
+           ttotal, nwords, nlines, nthreads);
    fclose( fd );
 
 // Clean up after ourselves
