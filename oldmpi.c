@@ -5,9 +5,6 @@
 #include <mpi.h>
 #include "unrolled_int_linked_list.c"
 
-#define MAX_KEYWORD_LENGTH 10
-#define MAX_LINE_LENGTH 2001
-
 double myclock();
 
 int compare(const void* a, const void* b) {
@@ -20,6 +17,7 @@ int main(int argc, char * argv[])
 {
  /*  int nwords, maxwords = 50000;
    int nwords, maxwords = 50000; */
+   int my_rank, num_procs, mpi_error_code;
    int nwords, maxwords = 50000;
    int nlines, maxlines = 1000000;
    int i, k, n, err, *count;
@@ -30,26 +28,19 @@ int main(int argc, char * argv[])
    struct Node** hithead;
    struct Node** hitend;
 
-   int rank;
-   MPI_Init(&argc, &argv);
-   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
-   if(rank == 0 && argc != 3){
+   if(argc != 3){
       printf("Usage: %s <job id> <input size>", argv[0]);
       return -1;
    }
 
+   mpi_error_code = MPI_Init(&argc, &argv); /* Start up MPI */
+   mpi_error_code = MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+   mpi_error_code = MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
+
 // Malloc space for the word list and lines
 
-   count = (int *) malloc( maxwords * sizeof( int ) );
-
-   // Contiguous memory ftw
    word = (char **) malloc( maxwords * sizeof( char * ) );
-   word[0] = (char *) malloc(sizeof(char) * maxwords * MAX_KEYWORD_LENGTH);
-   for(i = 0; i < maxwords; i++){
-       word[i] = (*word + i * MAX_KEYWORD_LENGTH);
-   }
-
+   count = (int *) malloc( maxwords * sizeof( int ) );
    hithead = (struct Node**) malloc( maxwords * sizeof(struct Node *) );
    hitend = (struct Node**) malloc( maxwords * sizeof(struct Node *) );
    for( i = 0; i < maxwords; i++ ) {
@@ -58,58 +49,44 @@ int main(int argc, char * argv[])
       count[i] = 0;
    }
 
-   // Contiguous memory...yay
    line = (char **) malloc( maxlines * sizeof( char * ) );
-   line[0] = (char *) malloc(sizeof(char) * maxlines * MAX_LINE_LENGTH);
    for( i = 0; i < maxlines; i++ ) {
-      line[i] = (*line + i * MAX_LINE_LENGTH);
+      line[i] = malloc( 2001 );
    }
 
 
-   if (rank == 0){
+// Read in the dictionary words
 
-     // Read in the dictionary words
- 
-     fd = fopen( "/homes/kmdice/625/hw3/keywords.txt", "r" );
-     nwords = -1;
-     do {
-        err = fscanf( fd, "%[^\n]\n", word[++nwords] );
-     } while( err != EOF && nwords < maxwords );
-     fclose( fd );
+   fd = fopen( "/homes/kmdice/625/hw3/keywords.txt", "r" );
+   nwords = -1;
+   do {
+      err = fscanf( fd, "%[^\n]\n", word[++nwords] );
+   } while( err != EOF && nwords < maxwords );
+   fclose( fd );
 
-     printf( "Read in %d words\n", nwords);
+   printf( "Read in %d words\n", nwords);
 
 
-     // Read in the lines from the data file
+// Read in the lines from the data file
 
-     char *input_file = (char*)malloc(50 * sizeof(char));
-     sprintf(input_file, "/homes/kmdice/625/hw3/test10-%s.txt", argv[2]);
-     fd = fopen( input_file, "r" );
-     nlines = -1;
-     do {
-        err = fscanf( fd, "%[^\n]\n", line[++nlines] );
-        if( line[nlines] != NULL ) nchars += (double) strlen( line[nlines] );
-     } while( err != EOF && nlines < maxlines);
-     fclose( fd );
-     free(input_file);
+   char *input_file = (char*)malloc(50 * sizeof(char));
+   sprintf(input_file, "/homes/kmdice/625/hw3/test10-%s.txt", argv[2]);
+   fd = fopen( input_file, "r" );
+   nlines = -1;
+   do {
+      err = fscanf( fd, "%[^\n]\n", line[++nlines] );
+      if( line[nlines] != NULL ) nchars += (double) strlen( line[nlines] );
+   } while( err != EOF && nlines < maxlines);
+   fclose( fd );
+   free(input_file);
 
-     printf( "Read in %d lines averaging %.0lf chars/line\n", nlines, nchars / nlines);
-
-
-     // sort
-
-     qsort(word, nwords, sizeof(char *), compare);
-
-   } // End read in stuff (only root node)
-
-   // B CAST arrays here
-   MPI_Bcast(word[0], maxwords * MAX_KEYWORD_LENGTH * sizeof(char), MPI_CHAR, 0, MPI_COMM_WORLD);
-   MPI_Bcast(line[0], maxlines * MAX_LINE_LENGTH * sizeof(char), MPI_CHAR, 0, MPI_COMM_WORLD);
+   printf( "Read in %d lines averaging %.0lf chars/line\n", nlines, nchars / nlines);
 
 
+// sort
 
-   // sanity check
-   printf("Everyone should print this:  %s\n", word[0]);
+   qsort(word, nwords, sizeof(char *), compare);
+
 
 // Loop over the word list
 
@@ -117,15 +94,15 @@ int main(int argc, char * argv[])
    tstart = myclock();  // Start the clock
 
 
-//   for( k = 0; k < nlines; k++ ) {
-//      for( i = 0; i < nwords; i++ ) {
-//         if( strstr( line[k], word[i] ) != NULL ) {
-//	    count[i]++;
-//	    hitend[i] = add(hitend[i], k);
-//	 } 
-//      }
-//
-//   }
+   for( k = 0; k < nlines; k++ ) {
+      for( i = 0; i < nwords; i++ ) {
+         if( strstr( line[k], word[i] ) != NULL ) {
+	    count[i]++;
+	    hitend[i] = add(hitend[i], k);
+	 } 
+      }
+
+   }
 
    ttotal = myclock() - tstart;
    printf( "The serial run took %lf seconds for %d words over %d lines\n",
@@ -156,15 +133,18 @@ int main(int argc, char * argv[])
 // Clean up after ourselves
 
    for(i = 0; i < maxwords; i++ ) {
+      free(word[i]);
       destroy(hithead[i]);
    }
-   free(word[0]);
    free(word);
    free(hithead);
    free(hitend);
 
-   free(line[0]);
+   for(i = 0; i < maxlines; i++ ) {
+      free(line[i]);
+   }
    free(line);
+
 }
 
 double myclock() {
