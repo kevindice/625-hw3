@@ -75,7 +75,8 @@ int main(int argc, char * argv[])
 
 
 // Read in the dictionary words
-/*
+if(rank == 0)
+{
    fd = fopen( "/homes/kmdice/625/hw3/keywords.txt", "r" );
    nwords = -1;
    do {
@@ -83,11 +84,16 @@ int main(int argc, char * argv[])
    } while( err != EOF && nwords < maxwords );
    fclose( fd );
 
-   printf( "Read in %d words\n", nwords);
-*/
+   printf( "Read in %d words in proc %d\n", nwords, rank);
+}
+
+   MPI_Bcast(wordmem, maxwords * MAX_KEYWORD_LENGTH, MPI_CHAR, 0, MPI_COMM_WORLD);
+
+   printf("After bcast, proc %d says %s\n", rank, word[45]);
 
 // Read in the lines from the data file
-/*
+if(rank == 0)
+{
    char *input_file = (char*)malloc(50 * sizeof(char));
    sprintf(input_file, "/homes/kmdice/625/hw3/test10-%s.txt", argv[2]);
    fd = fopen( input_file, "r" );
@@ -100,7 +106,11 @@ int main(int argc, char * argv[])
    free(input_file);
 
    printf( "Read in %d lines averaging %.0lf chars/line\n", nlines, nchars / nlines);
-*/
+}
+
+   MPI_Bcast(linemem, maxlines * MAX_LINE_LENGTH, MPI_CHAR, 0, MPI_COMM_WORLD);
+
+   printf("After bcast, proc %d says %c\n", rank, line[4][25]);
 
 // sort
 /*
