@@ -84,12 +84,24 @@ if(rank == 0)
    } while( err != EOF && nwords < maxwords );
    fclose( fd );
 
+   qsort(word, nwords, sizeof(char *), compare);
+
+   char *tempmem = malloc( maxwords * MAX_KEYWORD_LENGTH * sizeof(char) );
+   int i;
+   for(i = 0; i < nwords; i++)
+   {
+       memcpy(tempmem + i * MAX_KEYWORD_LENGTH, word[i], MAX_KEYWORD_LENGTH);
+       word[i] = wordmem + i * MAX_KEYWORD_LENGTH; // Fix pointers after qsort sorted them
+   }
+   memcpy(wordmem, tempmem, maxwords * MAX_KEYWORD_LENGTH * sizeof(char));
+   free(tempmem);
+
    printf( "Read in %d words in proc %d\n", nwords, rank);
 }
 
    MPI_Bcast(wordmem, maxwords * MAX_KEYWORD_LENGTH, MPI_CHAR, 0, MPI_COMM_WORLD);
 
-   printf("After bcast, proc %d says %s\n", rank, word[45]);
+   printf("After bcast, proc %d says %s, %s, %s\n", rank, word[0], word[1], word[2]);
 
 // Read in the lines from the data file
 if(rank == 0)
