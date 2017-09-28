@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 #include <mpi.h>
 #include "unrolled_int_linked_list.c"
 
@@ -26,113 +27,108 @@ int main(int argc, char * argv[])
    double nchars = 0;
    double tstart, ttotal;
    FILE *fd;
-   char **word, **line;
+   char *wordmem, **word, *linemem, **line;
    struct Node** hithead;
    struct Node** hitend;
 
-   int rank;
-   MPI_Init(&argc, &argv);
-   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   // MPI related
+   int numtasks, rank, len, rc;
+   char hostname[MPI_MAX_PROCESSOR_NAME];
 
-   if(rank == 0 && argc != 3){
+   MPI_Init(&argc, &argv);
+   MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   MPI_Get_processor_name(hostname, &len);
+   printf("Number of tasks= %d, My rank= %d, Running on %s\n", numtasks, rank, hostname);
+
+   if(argc != 3){
       printf("Usage: %s <job id> <input size>", argv[0]);
       return -1;
    }
 
 // Malloc space for the word list and lines
 
-   count = (int *) malloc( maxwords * sizeof( int ) );
+   count = (int *) calloc( maxwords, sizeof( int ) );
+
+   // Init node pools
+   initNodePools();
 
    // Contiguous memory ftw
+   wordmem = malloc(maxwords * MAX_KEYWORD_LENGTH * sizeof(char));
    word = (char **) malloc( maxwords * sizeof( char * ) );
-   word[0] = (char *) malloc(sizeof(char) * maxwords * MAX_KEYWORD_LENGTH);
    for(i = 0; i < maxwords; i++){
-       word[i] = (*word + i * MAX_KEYWORD_LENGTH);
+       word[i] = wordmem + i * MAX_KEYWORD_LENGTH;
    }
 
    hithead = (struct Node**) malloc( maxwords * sizeof(struct Node *) );
    hitend = (struct Node**) malloc( maxwords * sizeof(struct Node *) );
    for( i = 0; i < maxwords; i++ ) {
-      word[i] = malloc( 10 );
-      hithead[i] = hitend[i] = (struct Node *) calloc(1, sizeof(struct Node));
-      count[i] = 0;
+      hithead[i] = hitend[i] = node_alloc();
    }
 
    // Contiguous memory...yay
+   linemem = malloc(maxlines * MAX_LINE_LENGTH * sizeof(char));
    line = (char **) malloc( maxlines * sizeof( char * ) );
-   line[0] = (char *) malloc(sizeof(char) * maxlines * MAX_LINE_LENGTH);
    for( i = 0; i < maxlines; i++ ) {
-      line[i] = (*line + i * MAX_LINE_LENGTH);
+      line[i] = linemem + i * MAX_LINE_LENGTH;
    }
 
 
-   if (rank == 0){
+// Read in the dictionary words
+/*
+   fd = fopen( "/homes/kmdice/625/hw3/keywords.txt", "r" );
+   nwords = -1;
+   do {
+      err = fscanf( fd, "%[^\n]\n", word[++nwords] );
+   } while( err != EOF && nwords < maxwords );
+   fclose( fd );
 
-     // Read in the dictionary words
- 
-     fd = fopen( "/homes/kmdice/625/hw3/keywords.txt", "r" );
-     nwords = -1;
-     do {
-        err = fscanf( fd, "%[^\n]\n", word[++nwords] );
-     } while( err != EOF && nwords < maxwords );
-     fclose( fd );
+   printf( "Read in %d words\n", nwords);
+*/
 
-     printf( "Read in %d words\n", nwords);
+// Read in the lines from the data file
+/*
+   char *input_file = (char*)malloc(50 * sizeof(char));
+   sprintf(input_file, "/homes/kmdice/625/hw3/test10-%s.txt", argv[2]);
+   fd = fopen( input_file, "r" );
+   nlines = -1;
+   do {
+      err = fscanf( fd, "%[^\n]\n", line[++nlines] );
+      if( line[nlines] != NULL ) nchars += (double) strlen( line[nlines] );
+   } while( err != EOF && nlines < maxlines);
+   fclose( fd );
+   free(input_file);
 
+   printf( "Read in %d lines averaging %.0lf chars/line\n", nlines, nchars / nlines);
+*/
 
-     // Read in the lines from the data file
-
-     char *input_file = (char*)malloc(50 * sizeof(char));
-     sprintf(input_file, "/homes/kmdice/625/hw3/test10-%s.txt", argv[2]);
-     fd = fopen( input_file, "r" );
-     nlines = -1;
-     do {
-        err = fscanf( fd, "%[^\n]\n", line[++nlines] );
-        if( line[nlines] != NULL ) nchars += (double) strlen( line[nlines] );
-     } while( err != EOF && nlines < maxlines);
-     fclose( fd );
-     free(input_file);
-
-     printf( "Read in %d lines averaging %.0lf chars/line\n", nlines, nchars / nlines);
-
-
-     // sort
-
-     qsort(word, nwords, sizeof(char *), compare);
-
-   } // End read in stuff (only root node)
-
-   // B CAST arrays here
-   MPI_Bcast(word[0], maxwords * MAX_KEYWORD_LENGTH * sizeof(char), MPI_CHAR, 0, MPI_COMM_WORLD);
-   MPI_Bcast(line[0], maxlines * MAX_LINE_LENGTH * sizeof(char), MPI_CHAR, 0, MPI_COMM_WORLD);
-
-
-
-   // sanity check
-   printf("Everyone should print this:  %s\n", word[0]);
+// sort
+/*
+   qsort(word, nwords, sizeof(char *), compare);
+*/
 
 // Loop over the word list
-
+/*
    tstart = myclock();  // Set the zero time
    tstart = myclock();  // Start the clock
 
 
-//   for( k = 0; k < nlines; k++ ) {
-//      for( i = 0; i < nwords; i++ ) {
-//         if( strstr( line[k], word[i] ) != NULL ) {
-//	    count[i]++;
-//	    hitend[i] = add(hitend[i], k);
-//	 } 
-//      }
-//
-//   }
+   for( k = 0; k < nlines; k++ ) {
+      for( i = 0; i < nwords; i++ ) {
+         if( strstr( line[k], word[i] ) != NULL ) {
+	    count[i]++;
+	    hitend[i] = add(hitend[i], k);
+	 } 
+      }
+
+   }
 
    ttotal = myclock() - tstart;
    printf( "The serial run took %lf seconds for %d words over %d lines\n",
            ttotal, nwords, nlines);
-
+*/
 // Dump out the word counts
-
+/*
    char *output_file = (char*)malloc(50 * sizeof(char));
    sprintf(output_file, "/homes/kmdice/625/hw3/output/wiki-%s.out", argv[1]);
    fd = fopen( output_file, "w" );
@@ -152,19 +148,25 @@ int main(int argc, char * argv[])
    fprintf( fd, "The serial run took %lf seconds for %d words over %d lines\n",
            ttotal, nwords, nlines);
    fclose( fd );
-
+*/
 // Clean up after ourselves
 
-   for(i = 0; i < maxwords; i++ ) {
-      destroy(hithead[i]);
-   }
-   free(word[0]);
-   free(word);
+   // Linked list counts
+   cleanUpNodePools();
    free(hithead);
    free(hitend);
 
-   free(line[0]);
+   // Words
+   free(word);
+   free(wordmem);
+
+   // Lines
    free(line);
+   free(linemem);
+
+  // printf("\n\n\nUnrolled linked list stats:\n\nNode Pools: %d\nCurrent Node Count: %d\nTotal Nodes Allocated: %d\nNodes in Use: %d", num_node_pools, current_node_count, num_node_pools * MEMORY_POOL_SIZE, nodes_in_use);
+
+   MPI_Finalize();
 }
 
 double myclock() {
