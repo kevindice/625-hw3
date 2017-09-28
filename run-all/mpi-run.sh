@@ -1,5 +1,6 @@
 #!/bin/bash
 #$ -l mem=3G
+#$ -q \*@@elves
 #$ -cwd
 #$ -j y
 #$ -m abe
@@ -11,6 +12,6 @@ mpirun -np $NSLOTS /homes/kmdice/625/hw3/mpi "{$JOB_ID}_3" 3 "$PE" $NSLOTS $NHOS
 
 for x in 3 4 5 6
 do
-    cat /homes/kmdice/625/hw3/output/wiki-{$JOB_ID}_$x-part-*.out > /homes/kmdice/625/hw3/output/{$JOB_ID}_$x.out
+    cat /homes/kmdice/625/hw3/output/wiki-{$JOB_ID}_$x-part-*.out > /homes/kmdice/625/hw3/output/{$JOB_NAME}_{$JOB_ID}_$x.out
     rm /homes/kmdice/625/hw3/output/wiki-{$JOB_ID}_$x-part-*.out
 done
