@@ -100,10 +100,6 @@ if(rank == 0)
    printf( "Read in %d words in proc %d\n", nwords, rank);
 }
 
-   MPI_Bcast(wordmem, maxwords * MAX_KEYWORD_LENGTH, MPI_CHAR, 0, MPI_COMM_WORLD);
-
-   printf("After bcast, proc %d says %s, %s, %s\n", rank, word[0], word[1], word[2]);
-
 // Read in the lines from the data file
 if(rank == 0)
 {
@@ -121,9 +117,13 @@ if(rank == 0)
    printf( "Read in %d lines averaging %.0lf chars/line\n", nlines, nchars / nlines);
 }
 
+
+// Broadcast data
+   MPI_Bcast(&nwords, 1, MPI_INT, 0, MPI_COMM_WORLD);
+   MPI_Bcast(&nlines, 1, MPI_INT, 0, MPI_COMM_WORLD);
+   MPI_Bcast(wordmem, maxwords * MAX_KEYWORD_LENGTH, MPI_CHAR, 0, MPI_COMM_WORLD);
    MPI_Bcast(linemem, maxlines * MAX_LINE_LENGTH, MPI_CHAR, 0, MPI_COMM_WORLD);
 
-   printf("After bcast, proc %d says %c\n", rank, line[4][25]);
 
 // Set up timing
    if(rank == 0)
@@ -138,6 +138,9 @@ if(rank == 0)
    end = (rank + 1) * (nwords/numtasks);
    if(rank == numtasks - 1) end = nwords;
 
+   printf("------- Proc: %d, Start: %d, End: %d, Nwords: %d, Num tasks: %d --------\n", rank, start, end, nwords, numtasks);
+
+
 // Loop over the word list
    for( k = 0; k < nlines; k++ ) {
       for( i = start; i < end; i++ ) {
@@ -149,17 +152,12 @@ if(rank == 0)
 
    }
 
-if(rank == 0)
-{
-   ttotal = myclock() - tstart;
-   printf( "The mpi run took %lf seconds for %d words over %d lines\n",
-           ttotal, nwords, nlines);
-}
 
 // Dump out the word counts
 
+   printf("Proc %d starting output\n", rank); 
    char *output_file = (char*)malloc(50 * sizeof(char));
-   sprintf(output_file, "/homes/kmdice/625/hw3/output/wiki-%s-part-%d.out", argv[1], rank);
+   sprintf(output_file, "/homes/kmdice/625/hw3/output/wiki-%s-part-%03d.out", argv[1], rank);
    fd = fopen( output_file, "w" );
    for( i = start; i < end; i++ ) {
       if(count[i] != 0){
@@ -175,6 +173,18 @@ if(rank == 0)
       }
    }
    fclose( fd );
+   free(output_file);
+
+// Take end time when all are finished writing the file
+   MPI_Barrier(MPI_COMM_WORLD);
+
+   if(rank == 0)
+   {
+      ttotal = myclock() - tstart;
+      printf( "The mpi run took %lf seconds for %d words over %d lines\n",
+         ttotal, nwords, nlines);
+   }
+
 
 // Clean up after ourselves
 
