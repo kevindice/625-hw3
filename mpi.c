@@ -24,6 +24,7 @@ int main(int argc, char * argv[])
    int nwords, maxwords = 50000;
    int nlines, maxlines = 1000000;
    int i, k, n, err, *count;
+   int start, end;
    double nchars = 0;
    double tstart, ttotal;
    FILE *fd;
@@ -124,19 +125,22 @@ if(rank == 0)
 
    printf("After bcast, proc %d says %c\n", rank, line[4][25]);
 
-// sort
-/*
-   qsort(word, nwords, sizeof(char *), compare);
-*/
+// Set up timing
+   if(rank == 0)
+   {
+      tstart = myclock();  // Set the zero time
+      tstart = myclock();  // Start the clock
+   }
+
+
+// Division of work
+   start = rank * (nwords/numtasks);
+   end = (rank + 1) * (nwords/numtasks);
+   if(rank == numtasks - 1) end = nwords;
 
 // Loop over the word list
-/*
-   tstart = myclock();  // Set the zero time
-   tstart = myclock();  // Start the clock
-
-
    for( k = 0; k < nlines; k++ ) {
-      for( i = 0; i < nwords; i++ ) {
+      for( i = start; i < end; i++ ) {
          if( strstr( line[k], word[i] ) != NULL ) {
 	    count[i]++;
 	    hitend[i] = add(hitend[i], k);
@@ -145,16 +149,19 @@ if(rank == 0)
 
    }
 
+if(rank == 0)
+{
    ttotal = myclock() - tstart;
-   printf( "The serial run took %lf seconds for %d words over %d lines\n",
+   printf( "The mpi run took %lf seconds for %d words over %d lines\n",
            ttotal, nwords, nlines);
-*/
+}
+
 // Dump out the word counts
-/*
+
    char *output_file = (char*)malloc(50 * sizeof(char));
-   sprintf(output_file, "/homes/kmdice/625/hw3/output/wiki-%s.out", argv[1]);
+   sprintf(output_file, "/homes/kmdice/625/hw3/output/wiki-%s-part-%d.out", argv[1], rank);
    fd = fopen( output_file, "w" );
-   for( i = 0; i < nwords; i++ ) {
+   for( i = start; i < end; i++ ) {
       if(count[i] != 0){
          fprintf( fd, "%s: ", word[i] );
          int *line_numbers;
@@ -167,10 +174,8 @@ if(rank == 0)
          free(line_numbers);
       }
    }
-   fprintf( fd, "The serial run took %lf seconds for %d words over %d lines\n",
-           ttotal, nwords, nlines);
    fclose( fd );
-*/
+
 // Clean up after ourselves
 
    // Linked list counts
