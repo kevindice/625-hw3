@@ -42,9 +42,16 @@ int main(int argc, char * argv[])
    MPI_Get_processor_name(hostname, &len);
    printf("Number of tasks= %d, My rank= %d, Running on %s\n", numtasks, rank, hostname);
 
-   if(argc != 3){
-      printf("Usage: %s <job id> <input size>", argv[0]);
+   if(argc != 6){
+      printf("Usage: %s <job id> <input size> <parallel environment> <nslots> <nhosts>", argv[0]);
       return -1;
+   }
+
+   // Set up timing
+   if(rank == 0)
+   {
+      tstart = myclock();  // Set the zero time
+      tstart = myclock();  // Start the clock
    }
 
 // Malloc space for the word list and lines
@@ -125,14 +132,6 @@ if(rank == 0)
    MPI_Bcast(linemem, maxlines * MAX_LINE_LENGTH, MPI_CHAR, 0, MPI_COMM_WORLD);
 
 
-// Set up timing
-   if(rank == 0)
-   {
-      tstart = myclock();  // Set the zero time
-      tstart = myclock();  // Start the clock
-   }
-
-
 // Division of work
    start = rank * (nwords/numtasks);
    end = (rank + 1) * (nwords/numtasks);
@@ -181,8 +180,8 @@ if(rank == 0)
    if(rank == 0)
    {
       ttotal = myclock() - tstart;
-      printf( "The mpi run took %lf seconds for %d words over %d lines\n",
-         ttotal, nwords, nlines);
+      printf( "DATA\t%lf\t%d\t%d\t%s\t%s\t%s\n",
+         ttotal, nwords, nlines, argv[3], argv[4], argv[5]);
    }
 
 
