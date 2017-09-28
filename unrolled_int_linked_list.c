@@ -67,17 +67,12 @@ struct Node* node_alloc()
 // Cleanup after ourselves
 void cleanUpNodePools()
 {
-    printf("Cleanup node pools\n"); fflush(stdout);
     int i;
     for(i = 0; i < num_node_pools; i++)
     {
-        printf("Cleanup iteration %d before\n", i); fflush(stdout);
         free(node_pools[i]);
-	printf("Cleanup iteration %d after\n", i); fflush(stdout);
     }
-    printf("Finished freeing node pools\n"); fflush(stdout);
     free(node_pools);
-    printf("Finished freeing node pool array\n"); fflush(stdout);
 }
 
 
