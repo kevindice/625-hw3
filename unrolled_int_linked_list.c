@@ -6,6 +6,9 @@
 #define MAX_ELEMENTS 128
 #endif
 
+#define MEMORY_POOL_SIZE 100000
+#define MAX_NUM_MEMORY_POOLS 1000
+
 /*
  * Unrolled integer linked list
  *
@@ -20,6 +23,11 @@
  */
 
 
+int num_node_pools = 0;
+struct Node **node_pools;
+int current_node_count = 0;
+int nodes_in_use = 0;
+
 // Unrolled Linked List Node
 struct Node
 {
@@ -27,6 +35,50 @@ struct Node
     int array[MAX_ELEMENTS];
     struct Node *next;
 };
+
+// Allocat a node pool
+void allocateNewPool()
+{
+   node_pools[num_node_pools++] = malloc(MEMORY_POOL_SIZE * sizeof(struct Node));
+   current_node_count = 0;
+}
+
+// Init node pool array and allocate first pool
+void initNodePools()
+{
+    // Allocate our pool of nodes
+    num_node_pools = 0;
+    current_node_count = 0;
+    node_pools = (struct Node **) malloc(MAX_NUM_MEMORY_POOLS * sizeof(struct Node *));
+    allocateNewPool();
+}
+
+// Deal out space for a node from contiguous memory pool
+struct Node* node_alloc()
+{
+    if(current_node_count == MEMORY_POOL_SIZE)
+    {
+        allocateNewPool();
+    }
+    nodes_in_use++;
+    return &(node_pools[num_node_pools - 1][current_node_count++]);
+}
+
+// Cleanup after ourselves
+void cleanUpNodePools()
+{
+    printf("Cleanup node pools\n"); fflush(stdout);
+    int i;
+    for(i = 0; i < num_node_pools; i++)
+    {
+        printf("Cleanup iteration %d before\n", i); fflush(stdout);
+        free(node_pools[i]);
+	printf("Cleanup iteration %d after\n", i); fflush(stdout);
+    }
+    printf("Finished freeing node pools\n"); fflush(stdout);
+    free(node_pools);
+    printf("Finished freeing node pool array\n"); fflush(stdout);
+}
 
 
 // Print function for testing

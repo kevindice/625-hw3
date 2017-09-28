@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 #include "unrolled_int_linked_list.c"
 
 #define MAX_KEYWORD_LENGTH 10
@@ -25,7 +26,7 @@ int main(int argc, char * argv[])
    double nchars = 0;
    double tstart, ttotal;
    FILE *fd;
-   char **word, **line;
+   char *wordmem, **word, *linemem, **line;
    struct Node** hithead;
    struct Node** hitend;
 
@@ -36,28 +37,29 @@ int main(int argc, char * argv[])
 
 // Malloc space for the word list and lines
 
-   count = (int *) malloc( maxwords * sizeof( int ) );
+   count = (int *) calloc( maxwords, sizeof( int ) );
+
+   // Init node pools
+   initNodePools();
 
    // Contiguous memory ftw
+   wordmem = malloc(maxwords * MAX_KEYWORD_LENGTH * sizeof(char));
    word = (char **) malloc( maxwords * sizeof( char * ) );
-   word[0] = (char *) malloc(sizeof(char) * maxwords * MAX_KEYWORD_LENGTH);
    for(i = 0; i < maxwords; i++){
-       word[i] = (*word + i * MAX_KEYWORD_LENGTH);
+       word[i] = wordmem + i * MAX_KEYWORD_LENGTH;
    }
 
    hithead = (struct Node**) malloc( maxwords * sizeof(struct Node *) );
    hitend = (struct Node**) malloc( maxwords * sizeof(struct Node *) );
    for( i = 0; i < maxwords; i++ ) {
-      word[i] = malloc( 10 );
-      hithead[i] = hitend[i] = (struct Node *) calloc(1, sizeof(struct Node));
-      count[i] = 0;
+      hithead[i] = hitend[i] = node_alloc();
    }
 
    // Contiguous memory...yay
+   linemem = malloc(maxlines * MAX_LINE_LENGTH * sizeof(char));
    line = (char **) malloc( maxlines * sizeof( char * ) );
-   line[0] = (char *) malloc(sizeof(char) * maxlines * MAX_LINE_LENGTH);
    for( i = 0; i < maxlines; i++ ) {
-      line[i] = (*line + i * MAX_LINE_LENGTH);
+      line[i] = linemem + i * MAX_LINE_LENGTH;
    }
 
 
@@ -138,16 +140,20 @@ int main(int argc, char * argv[])
 
 // Clean up after ourselves
 
-   for(i = 0; i < maxwords; i++ ) {
-      destroy(hithead[i]);
-   }
-   free(word[0]);
-   free(word);
+   // Linked list counts
+   cleanUpNodePools();
    free(hithead);
    free(hitend);
 
-   free(line[0]);
+   // Words
+   free(word);
+   free(wordmem);
+
+   // Lines
    free(line);
+   free(linemem);
+
+   printf("\n\n\nUnrolled linked list stats:\n\nNode Pools: %d\nCurrent Node Count: %d\nTotal Nodes Allocated: %d\nNodes in Use: %d", num_node_pools, current_node_count, num_node_pools * MEMORY_POOL_SIZE, nodes_in_use);
 }
 
 double myclock() {
