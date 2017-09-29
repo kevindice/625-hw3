@@ -10,12 +10,7 @@
 #define MAX_LINE_LENGTH 2001
 
 double myclock();
-
-int compare(const void* a, const void* b) {
-    const char **ia = (const char **)a;
-    const char **ib = (const char **)b;
-    return strcmp(*ia, *ib);
-}
+int compare(const void* a, const void* b);
 
 int main(int argc, char * argv[])
 {
@@ -153,7 +148,7 @@ if(rank == 0)
          if( strstr( line[k], word[i] ) != NULL ) {
 	    count[i]++;
 	    hitend[i] = add(hitend[i], k);
-	 } 
+	 }
       }
 
    }
@@ -161,7 +156,7 @@ if(rank == 0)
 
 // Dump out the word counts
 
-   printf("Proc %d starting output\n", rank); 
+   printf("Proc %d starting output\n", rank);
    char *output_file = (char*)malloc(50 * sizeof(char));
    sprintf(output_file, "/homes/kmdice/625/hw3/output/wiki-%s-part-%03d.out", argv[1], rank);
    fd = fopen( output_file, "w" );
@@ -228,4 +223,10 @@ double myclock() {
    if( t_start == 0 ) t_start = ts.tv_sec;
 
    return (double) (ts.tv_sec - t_start) + ts.tv_nsec * 1.0e-9;
+}
+
+int compare(const void* a, const void* b) {
+    const char **ia = (const char **)a;
+    const char **ib = (const char **)b;
+    return strcmp(*ia, *ib);
 }
