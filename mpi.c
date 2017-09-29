@@ -15,11 +15,12 @@ double myclock();
 int compare(const void* a, const void* b);
 void read_keywords();
 void sort_keywords();
+void read_wiki_data();
 
 int main(int argc, char * argv[])
 {
-   int nwords = 50000;
-   int nlines = 1000000;
+   int nwords = 0;
+   int nlines = 0;
    int i, k, n, err, *count;
    int start, end;
    double nchars = 0;
@@ -82,29 +83,16 @@ int main(int argc, char * argv[])
 // Read in the dictionary words
 if(rank == 0)
 {
-   read_keywords(&nwords, word);
-   sort_keywords(nwords, word, wordmem);
+   read_keywords(word, &nwords);
+   sort_keywords(wordmem, word, nwords);
    printf( "Read in %d words in proc %d\n", nwords, rank);
 }
 
 // Read in the lines from the data file
 if(rank == 0)
 {
-   char *input_file = (char*)malloc(50 * sizeof(char));
-   sprintf(input_file, "/homes/kmdice/625/hw3/test10-%s.txt", argv[2]);
-   fd = fopen( input_file, "r" );
-   if(fd == NULL)
-   {
-       printf("File not found!"); fflush(stdout); exit(1);
-   }
+   read_wiki_data(line, &nlines, &nchars, argv[2]);
 
-   nlines = -1;
-   do {
-      err = fscanf( fd, "%[^\n]\n", line[++nlines] );
-      if( line[nlines] != NULL ) nchars += (double) strlen( line[nlines] );
-   } while( err != EOF && nlines < MAX_LINES);
-   fclose( fd );
-   free(input_file);
 
    printf( "Read in %d lines averaging %.0lf chars/line\n", nlines, nchars / nlines);
 }
@@ -214,7 +202,7 @@ int compare(const void* a, const void* b) {
     return strcmp(*ia, *ib);
 }
 
-void read_keywords(int *nwords, char **word)
+void read_keywords(char **word, int *nwords)
 {
   int err;
   FILE *fd;
@@ -231,7 +219,7 @@ void read_keywords(int *nwords, char **word)
   fclose( fd );
 }
 
-void sort_keywords(int nwords, char **word, char *wordmem)
+void sort_keywords(char *wordmem, char **word, int nwords)
 {
   qsort(word, nwords, sizeof(char *), compare);
 
@@ -244,4 +232,25 @@ void sort_keywords(int nwords, char **word, char *wordmem)
   }
   memcpy(wordmem, tempmem, MAX_WORDS * MAX_KEYWORD_LENGTH * sizeof(char));
   free(tempmem);
+}
+
+void read_wiki_data(char **line, int *nlines, int *nchars, char *input_size)
+{
+  FILE *fd;
+  int err;
+  char *input_file = (char*)malloc(50 * sizeof(char));
+  sprintf(input_file, "/homes/kmdice/625/hw3/test10-%s.txt", input_size);
+  fd = fopen( input_file, "r" );
+  if(fd == NULL)
+  {
+      printf("File not found!"); fflush(stdout); exit(1);
+  }
+
+  *nlines = -1;
+  do {
+     err = fscanf( fd, "%[^\n]\n", line[++(*nlines)] );
+     if( line[*nlines] != NULL ) *nchars += (double) strlen( line[*nlines] );
+  } while( err != EOF && *nlines < MAX_LINES);
+  fclose( fd );
+  free(input_file);
 }
