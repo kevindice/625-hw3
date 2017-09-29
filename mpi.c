@@ -139,7 +139,7 @@ if(rank == 0)
             fprintf( fd, "%d, ", line_numbers[k]);
          }
          fprintf( fd, "%d\n", line_numbers[len - 1]);
-         free(line_numbers);
+         free(line_numbers); line_numbers = 0;
       }
    }
    fclose( fd );
@@ -162,21 +162,21 @@ if(rank == 0)
    printf("Freeing stuff\n"); fflush(stdout);
    cleanUpNodePools();
    printf("Node pools freed\n"); fflush(stdout);
-   free(hithead);
+   free(hithead); hithead = NULL;
    printf("Head list free\n"); fflush(stdout);
-   free(hitend);
+   free(hitend); hitend = NULL;
    printf("End list free\n"); fflush(stdout);
 
    // Words
-   free(word);
+   free(word); word = NULL;
    printf("Word freed\n"); fflush(stdout);
-   free(wordmem);
+   free(wordmem); wordmem = NULL;
    printf("Word mem freed\n"); fflush(stdout);
 
    // Lines
-   free(line);
+   free(line); line = NULL;
    printf("Line freed\n"); fflush(stdout);
-   free(linemem);
+   free(linemem); linemem = NULL;
    printf("Line mem freed\n"); fflush(stdout);
 
   // printf("\n\n\nUnrolled linked list stats:\n\nNode Pools: %d\nCurrent Node Count: %d\nTotal Nodes Allocated: %d\nNodes in Use: %d", num_node_pools, current_node_count, num_node_pools * MEMORY_POOL_SIZE, nodes_in_use);
@@ -229,7 +229,7 @@ void sort_keywords(char *wordmem, char **word, int nwords)
       word[i] = wordmem + i * MAX_KEYWORD_LENGTH; // Fix pointers after qsort sorted them
   }
   memcpy(wordmem, tempmem, MAX_WORDS * MAX_KEYWORD_LENGTH * sizeof(char));
-  free(tempmem);
+  free(tempmem); tempmem = NULL;
 }
 
 void read_wiki_data(char **line, int *nlines, double *nchars, char *input_size)
@@ -250,5 +250,5 @@ void read_wiki_data(char **line, int *nlines, double *nchars, char *input_size)
      if( line[*nlines] != NULL ) *nchars += (double) strlen( line[*nlines] );
   } while( err != EOF && *nlines < MAX_LINES);
   fclose( fd );
-  free(input_file);
+  free(input_file); input_file = NULL;
 }
