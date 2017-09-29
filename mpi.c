@@ -19,8 +19,6 @@ int compare(const void* a, const void* b) {
 
 int main(int argc, char * argv[])
 {
- /*  int nwords, maxwords = 50000;
-   int nwords, maxwords = 50000; */
    int nwords, maxwords = 50000;
    int nlines, maxlines = 1000000;
    int i, k, n, err, *count;
@@ -86,6 +84,10 @@ int main(int argc, char * argv[])
 if(rank == 0)
 {
    fd = fopen( "/homes/kmdice/625/hw3/keywords.txt", "r" );
+   if(fd == NULL)
+   {
+       printf("File not found!"); fflush(stdout); exit(1);
+   }
    nwords = -1;
    do {
       err = fscanf( fd, "%[^\n]\n", word[++nwords] );
@@ -113,6 +115,11 @@ if(rank == 0)
    char *input_file = (char*)malloc(50 * sizeof(char));
    sprintf(input_file, "/homes/kmdice/625/hw3/test10-%s.txt", argv[2]);
    fd = fopen( input_file, "r" );
+   if(fd == NULL)
+   {
+       printf("File not found!"); fflush(stdout); exit(1);
+   }
+
    nlines = -1;
    do {
       err = fscanf( fd, "%[^\n]\n", line[++nlines] );
