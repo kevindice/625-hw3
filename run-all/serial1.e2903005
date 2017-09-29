@@ -1,0 +1,1 @@
+/opt/sge/default/spool/elf03/job_scripts/2903005: line 7:  7827 Segmentation fault      (core dumped) /homes/kmdice/625/hw3/serial "{$JOB_NAME}_{$JOB_ID}_$x" $x
