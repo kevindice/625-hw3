@@ -188,24 +188,32 @@ if(rank == 0)
    {
       ttotal = myclock() - tstart;
       printf( "DATA\t%lf\t%d\t%d\t%s\t%s\t%s\n",
-         ttotal, nwords, nlines, argv[3], argv[4], argv[5]);
+         ttotal, nwords, nlines, argv[3], argv[4], argv[5]); fflush(stdout);
    }
 
 
 // Clean up after ourselves
 
    // Linked list counts
+   printf("Freeing stuff\n"); fflush(stdout);
    cleanUpNodePools();
+   printf("Node pools freed\n"); fflush(stdout);
    free(hithead);
+   printf("Head list free\n"); fflush(stdout);
    free(hitend);
+   printf("End list free\n"); fflush(stdout);
 
    // Words
    free(word);
+   printf("Word freed\n"); fflush(stdout);
    free(wordmem);
+   printf("Word mem freed\n"); fflush(stdout);
 
    // Lines
    free(line);
+   printf("Line freed\n"); fflush(stdout);
    free(linemem);
+   printf("Line mem freed\n"); fflush(stdout);
 
   // printf("\n\n\nUnrolled linked list stats:\n\nNode Pools: %d\nCurrent Node Count: %d\nTotal Nodes Allocated: %d\nNodes in Use: %d", num_node_pools, current_node_count, num_node_pools * MEMORY_POOL_SIZE, nodes_in_use);
 
