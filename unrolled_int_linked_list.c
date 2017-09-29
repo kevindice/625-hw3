@@ -125,7 +125,7 @@ struct Node* add(struct Node *n, int x)
     if(n == NULL)
     {
         struct Node* new_head_node = NULL;
-	new_head_node = (struct Node*) calloc(1, sizeof(struct Node));
+	new_head_node = node_alloc();
 	return add(new_head_node, x);
     }
 
@@ -133,7 +133,7 @@ struct Node* add(struct Node *n, int x)
     if(n->numElements == MAX_ELEMENTS)
     {
         struct Node* new_node = NULL;
-	new_node = (struct Node*) calloc(1, sizeof(struct Node));
+	new_node = node_alloc();
 	n->next = new_node;
 	return add(new_node, x);
     }
@@ -163,9 +163,9 @@ int testing_stuff()
     struct Node* second = NULL;
     struct Node* third = NULL;
 
-    head = (struct Node*)calloc(1, sizeof(struct Node));
-    second = (struct Node*)calloc(1, sizeof(struct Node));
-    third = (struct Node*)calloc(1, sizeof(struct Node));
+    head = node_alloc();
+    second = node_alloc();
+    third = node_alloc();
 
     head->numElements = 4;
     head->array[0] = 3;
