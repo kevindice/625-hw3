@@ -23,7 +23,6 @@ int main(int argc, char * argv[])
    int nlines = 0;
    int i, k, n, err, *count;
    int start, end;
-   double nchars = 0;
    double tstart, ttotal;
    FILE *fd;
    char *wordmem, **word, *linemem, **line;
@@ -91,9 +90,8 @@ if(rank == 0)
 // Read in the lines from the data file
 if(rank == 0)
 {
+   double nchars = 0;
    read_wiki_data(line, &nlines, &nchars, argv[2]);
-
-
    printf( "Read in %d lines averaging %.0lf chars/line\n", nlines, nchars / nlines);
 }
 
@@ -234,7 +232,7 @@ void sort_keywords(char *wordmem, char **word, int nwords)
   free(tempmem);
 }
 
-void read_wiki_data(char **line, int *nlines, int *nchars, char *input_size)
+void read_wiki_data(char **line, int *nlines, double *nchars, char *input_size)
 {
   FILE *fd;
   int err;
