@@ -11,6 +11,16 @@
 #define MAX_WORDS 50000
 #define MAX_LINES 1000000
 
+#define WIKI_FILE "/home/k/kmdice/625/hw3/test10-%s.txt"
+#define KEYWORD_FILE "/home/k/kmdice/625/hw3/keywords.txt"
+#define OUTPUT_FILE "/home/k/kmdice/625/hw3/output/wiki-%s-part-%03d.out"
+
+#ifndef VIPER
+   #define WIKI_FILE "/homes/kmdice/625/hw3/test10-%s.txt"
+   #define KEYWORD_FILE "/homes/kmdice/625/hw3/keywords.txt"
+   #define OUTPUT_FILE "/homes/kmdice/625/hw3/output/wiki-%s-part-%03d.out"
+#endif
+
 double myclock();
 int compare(const void* a, const void* b);
 void read_keywords();
@@ -115,35 +125,44 @@ if(rank == 0)
    for( k = 0; k < nlines; k++ ) {
       for( i = start; i < end; i++ ) {
          if( strstr( line[k], word[i] ) != NULL ) {
-	    count[i]++;
-	    hitend[i] = add(hitend[i], k);
-	 }
+	          count[i]++;
+	          hitend[i] = add(hitend[i], k);
+	       }
       }
-
    }
+
+   printf("Done with computation %d \n", rank);
 
 
 // Dump out the word counts
 
    printf("Proc %d starting output\n", rank);
-   char *output_file = (char*)malloc(50 * sizeof(char));
-   sprintf(output_file, "/homes/kmdice/625/hw3/output/wiki-%s-part-%03d.out", argv[1], rank);
+   char *output_file = malloc(50 * sizeof(char));
+   sprintf(output_file, OUTPUT_FILE, argv[1], rank);
+   printf("outputfile: %s\n", output_file);
    fd = fopen( output_file, "w" );
+   //printf("!!!!!!!!!!!!!!! File pointer: %p\n", fd);
+   //printf("ASDFASDF 1\n"); fflush(stdin);
    for( i = start; i < end; i++ ) {
+     //printf("ASDFASDF 2\n"); fflush(stdin);
       if(count[i] != 0){
-         fprintf( fd, "%s: ", word[i] );
+        //printf("ASDFASDF 3\n"); fflush(stdin);
+         fprintf( fd, "%s: ", "cake" );
          int *line_numbers;
          int len;
+         //printf("ASDFASDF 4\n"); fflush(stdin);
          toArray(hithead[i], &line_numbers, &len);
+         //printf("ASDFASDF 5\n"); fflush(stdin);
          for (k = 0; k < len - 1; k++) {
+            //printf("ASDFASDF 6\n"); fflush(stdin);
             fprintf( fd, "%d, ", line_numbers[k]);
          }
          fprintf( fd, "%d\n", line_numbers[len - 1]);
-         free(line_numbers); line_numbers = 0;
+         //free(line_numbers); line_numbers = NULL;
       }
    }
    fclose( fd );
-   free(output_file);
+   //free(output_file); output_file = NULL;
 
 // Take end time when all are finished writing the file
    MPI_Barrier(MPI_COMM_WORLD);
@@ -158,30 +177,32 @@ if(rank == 0)
 
 // Clean up after ourselves
 
+   MPI_Finalize();
+
    // Linked list counts
    printf("Freeing stuff\n"); fflush(stdout);
    cleanUpNodePools();
    printf("Node pools freed\n"); fflush(stdout);
-   free(hithead); hithead = NULL;
+   //free(hithead); hithead = NULL;
    printf("Head list free\n"); fflush(stdout);
-   free(hitend); hitend = NULL;
+   //free(hitend); hitend = NULL;
    printf("End list free\n"); fflush(stdout);
 
    // Words
-   free(word); word = NULL;
+   //free(word); word = NULL;
    printf("Word freed\n"); fflush(stdout);
-   free(wordmem); wordmem = NULL;
+   //free(wordmem); wordmem = NULL;
    printf("Word mem freed\n"); fflush(stdout);
 
    // Lines
-   free(line); line = NULL;
+   //free(line); line = NULL;
    printf("Line freed\n"); fflush(stdout);
-   free(linemem); linemem = NULL;
+   //free(linemem); linemem = NULL;
    printf("Line mem freed\n"); fflush(stdout);
 
   // printf("\n\n\nUnrolled linked list stats:\n\nNode Pools: %d\nCurrent Node Count: %d\nTotal Nodes Allocated: %d\nNodes in Use: %d", num_node_pools, current_node_count, num_node_pools * MEMORY_POOL_SIZE, nodes_in_use);
 
-   MPI_Finalize();
+
 }
 
 double myclock() {
@@ -205,7 +226,7 @@ void read_keywords(char **word, int *nwords)
   int err;
   FILE *fd;
 
-  fd = fopen( "/homes/kmdice/625/hw3/keywords.txt", "r" );
+  fd = fopen( KEYWORD_FILE, "r" );
   if(fd == NULL)
   {
       printf("File not found!"); fflush(stdout); exit(1);
@@ -229,15 +250,15 @@ void sort_keywords(char *wordmem, char **word, int nwords)
       word[i] = wordmem + i * MAX_KEYWORD_LENGTH; // Fix pointers after qsort sorted them
   }
   memcpy(wordmem, tempmem, MAX_WORDS * MAX_KEYWORD_LENGTH * sizeof(char));
-  free(tempmem); tempmem = NULL;
+  //free(tempmem); tempmem = NULL;
 }
 
 void read_wiki_data(char **line, int *nlines, double *nchars, char *input_size)
 {
   FILE *fd;
   int err;
-  char *input_file = (char*)malloc(50 * sizeof(char));
-  sprintf(input_file, "/homes/kmdice/625/hw3/test10-%s.txt", input_size);
+  char *input_file = (char*)malloc(500 * sizeof(char));
+  sprintf(input_file, WIKI_FILE, input_size);
   fd = fopen( input_file, "r" );
   if(fd == NULL)
   {
@@ -250,5 +271,5 @@ void read_wiki_data(char **line, int *nlines, double *nchars, char *input_size)
      if( line[*nlines] != NULL ) *nchars += (double) strlen( line[*nlines] );
   } while( err != EOF && *nlines < MAX_LINES);
   fclose( fd );
-  free(input_file); input_file = NULL;
+  //free(input_file); input_file = NULL;
 }

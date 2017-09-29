@@ -71,6 +71,8 @@ void cleanUpNodePools()
     for(i = 0; i < num_node_pools; i++)
     {
         free(node_pools[i]);
+        node_pools[i] = 0;
+        printf("%d\n", num_node_pools); fflush(stdout);
     }
     free(node_pools);
 }
@@ -125,17 +127,17 @@ struct Node* add(struct Node *n, int x)
     if(n == NULL)
     {
         struct Node* new_head_node = NULL;
-	new_head_node = node_alloc();
-	return add(new_head_node, x);
+	      new_head_node = node_alloc();
+	      return add(new_head_node, x);
     }
 
     // We are given a full list, so create a new node insert into it
     if(n->numElements == MAX_ELEMENTS)
     {
         struct Node* new_node = NULL;
-	new_node = node_alloc();
-	n->next = new_node;
-	return add(new_node, x);
+	      new_node = node_alloc();
+	      n->next = new_node;
+	      return add(new_node, x);
     }
 
     n->array[n->numElements] = x;
