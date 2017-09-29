@@ -8,14 +8,18 @@
 
 #define MAX_KEYWORD_LENGTH 10
 #define MAX_LINE_LENGTH 2001
+#define MAX_WORDS 50000
+#define MAX_LINES 1000000
 
 double myclock();
 int compare(const void* a, const void* b);
+void read_keywords();
+void sort_keywords();
 
 int main(int argc, char * argv[])
 {
-   int nwords, maxwords = 50000;
-   int nlines, maxlines = 1000000;
+   int nwords = 50000;
+   int nlines = 1000000;
    int i, k, n, err, *count;
    int start, end;
    double nchars = 0;
@@ -49,28 +53,28 @@ int main(int argc, char * argv[])
 
 // Malloc space for the word list and lines
 
-   count = (int *) calloc( maxwords, sizeof( int ) );
+   count = (int *) calloc( MAX_WORDS, sizeof( int ) );
 
    // Init node pools
    initNodePools();
 
    // Contiguous memory ftw
-   wordmem = malloc(maxwords * MAX_KEYWORD_LENGTH * sizeof(char));
-   word = (char **) malloc( maxwords * sizeof( char * ) );
-   for(i = 0; i < maxwords; i++){
+   wordmem = malloc(MAX_WORDS * MAX_KEYWORD_LENGTH * sizeof(char));
+   word = (char **) malloc( MAX_WORDS * sizeof( char * ) );
+   for(i = 0; i < MAX_WORDS; i++){
        word[i] = wordmem + i * MAX_KEYWORD_LENGTH;
    }
 
-   hithead = (struct Node**) malloc( maxwords * sizeof(struct Node *) );
-   hitend = (struct Node**) malloc( maxwords * sizeof(struct Node *) );
-   for( i = 0; i < maxwords; i++ ) {
+   hithead = (struct Node**) malloc( MAX_WORDS * sizeof(struct Node *) );
+   hitend = (struct Node**) malloc( MAX_WORDS * sizeof(struct Node *) );
+   for( i = 0; i < MAX_WORDS; i++ ) {
       hithead[i] = hitend[i] = node_alloc();
    }
 
    // Contiguous memory...yay
-   linemem = malloc(maxlines * MAX_LINE_LENGTH * sizeof(char));
-   line = (char **) malloc( maxlines * sizeof( char * ) );
-   for( i = 0; i < maxlines; i++ ) {
+   linemem = malloc(MAX_LINES * MAX_LINE_LENGTH * sizeof(char));
+   line = (char **) malloc( MAX_LINES * sizeof( char * ) );
+   for( i = 0; i < MAX_LINES; i++ ) {
       line[i] = linemem + i * MAX_LINE_LENGTH;
    }
 
@@ -78,29 +82,8 @@ int main(int argc, char * argv[])
 // Read in the dictionary words
 if(rank == 0)
 {
-   fd = fopen( "/homes/kmdice/625/hw3/keywords.txt", "r" );
-   if(fd == NULL)
-   {
-       printf("File not found!"); fflush(stdout); exit(1);
-   }
-   nwords = -1;
-   do {
-      err = fscanf( fd, "%[^\n]\n", word[++nwords] );
-   } while( err != EOF && nwords < maxwords );
-   fclose( fd );
-
-   qsort(word, nwords, sizeof(char *), compare);
-
-   char *tempmem = malloc( maxwords * MAX_KEYWORD_LENGTH * sizeof(char) );
-   int i;
-   for(i = 0; i < nwords; i++)
-   {
-       memcpy(tempmem + i * MAX_KEYWORD_LENGTH, word[i], MAX_KEYWORD_LENGTH);
-       word[i] = wordmem + i * MAX_KEYWORD_LENGTH; // Fix pointers after qsort sorted them
-   }
-   memcpy(wordmem, tempmem, maxwords * MAX_KEYWORD_LENGTH * sizeof(char));
-   free(tempmem);
-
+   read_keywords(&nwords, word);
+   sort_keywords(nwords, word, wordmem);
    printf( "Read in %d words in proc %d\n", nwords, rank);
 }
 
@@ -119,7 +102,7 @@ if(rank == 0)
    do {
       err = fscanf( fd, "%[^\n]\n", line[++nlines] );
       if( line[nlines] != NULL ) nchars += (double) strlen( line[nlines] );
-   } while( err != EOF && nlines < maxlines);
+   } while( err != EOF && nlines < MAX_LINES);
    fclose( fd );
    free(input_file);
 
@@ -130,8 +113,8 @@ if(rank == 0)
 // Broadcast data
    MPI_Bcast(&nwords, 1, MPI_INT, 0, MPI_COMM_WORLD);
    MPI_Bcast(&nlines, 1, MPI_INT, 0, MPI_COMM_WORLD);
-   MPI_Bcast(wordmem, maxwords * MAX_KEYWORD_LENGTH, MPI_CHAR, 0, MPI_COMM_WORLD);
-   MPI_Bcast(linemem, maxlines * MAX_LINE_LENGTH, MPI_CHAR, 0, MPI_COMM_WORLD);
+   MPI_Bcast(wordmem, MAX_WORDS * MAX_KEYWORD_LENGTH, MPI_CHAR, 0, MPI_COMM_WORLD);
+   MPI_Bcast(linemem, MAX_LINES * MAX_LINE_LENGTH, MPI_CHAR, 0, MPI_COMM_WORLD);
 
 
 // Division of work
@@ -229,4 +212,36 @@ int compare(const void* a, const void* b) {
     const char **ia = (const char **)a;
     const char **ib = (const char **)b;
     return strcmp(*ia, *ib);
+}
+
+void read_keywords(int *nwords, char **word)
+{
+  int err;
+  FILE *fd;
+
+  fd = fopen( "/homes/kmdice/625/hw3/keywords.txt", "r" );
+  if(fd == NULL)
+  {
+      printf("File not found!"); fflush(stdout); exit(1);
+  }
+  *nwords = -1;
+  do {
+     err = fscanf( fd, "%[^\n]\n", word[++(*nwords)] );
+  } while( err != EOF && (*nwords) < MAX_WORDS );
+  fclose( fd );
+}
+
+void sort_keywords(int nwords, char **word, char *wordmem)
+{
+  qsort(word, nwords, sizeof(char *), compare);
+
+  char *tempmem = malloc( MAX_WORDS * MAX_KEYWORD_LENGTH * sizeof(char) );
+  int i;
+  for(i = 0; i < nwords; i++)
+  {
+      memcpy(tempmem + i * MAX_KEYWORD_LENGTH, word[i], MAX_KEYWORD_LENGTH);
+      word[i] = wordmem + i * MAX_KEYWORD_LENGTH; // Fix pointers after qsort sorted them
+  }
+  memcpy(wordmem, tempmem, MAX_WORDS * MAX_KEYWORD_LENGTH * sizeof(char));
+  free(tempmem);
 }
