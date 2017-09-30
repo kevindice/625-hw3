@@ -147,15 +147,3 @@ struct Node* add(struct Node *n, int x)
   n->numElements += 1;
   return n;
 }
-
-// Destroy a list given the head node
-// void destroy(struct Node *n)
-// {
-//   while (n != NULL)
-//   {
-//     struct Node* next = n->next;
-//     //printf("Destroying node with first element %d\n", n->array[0]);
-//     free(n);
-//     n = next;
-//   }
-// }
