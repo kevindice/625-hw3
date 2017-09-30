@@ -53,7 +53,7 @@ int main(int argc, char * argv[])
   count = (int *) calloc( maxwords, sizeof( int ) );
 
   // Allocate node pools
-  allocNodePools();
+  allocateNodePools();
 
   // Contiguous memory ftw
   wordmem = malloc(maxwords * MAX_KEYWORD_LENGTH * sizeof(char));
@@ -131,7 +131,7 @@ int main(int argc, char * argv[])
 
   // Dump out the word counts
 
-  char *output_file = (char*)malloc(50 * sizeof(char));
+  char *output_file = (char*) malloc(50 * sizeof(char));
   sprintf(output_file, OUTPUT_FILE, argv[1]);
 
   fd = fopen( output_file, "w" );
@@ -146,11 +146,25 @@ int main(int argc, char * argv[])
         }
         fprintf( fd, "%d\n", line_numbers[len - 1]);
         free(line_numbers);
+        line_numbers = NULL;
       }
     }
   fclose( fd );
 
   free(output_file);
+  output_file = NULL;
+
+  printf("\n\n\n"
+    "Unrolled linked list stats:\n\n"
+    "Node Pools: %d\n"
+    "Current Node Count: %d\n"
+    "Total Nodes Allocated: %d\n"
+    "Nodes in Use: %d",
+    _num_node_pools,
+    _current_node_count,
+    _num_node_pools * MEMORY_POOL_SIZE,
+    nodes_in_use
+  );
 
   // Clean up after ourselves
 
@@ -166,8 +180,6 @@ int main(int argc, char * argv[])
   // Lines
   free(line);
   free(linemem);
-
-  printf("\n\n\nUnrolled linked list stats:\n\nNode Pools: %d\nCurrent Node Count: %d\nTotal Nodes Allocated: %d\nNodes in Use: %d", num_node_pools, current_node_count, num_node_pools * MEMORY_POOL_SIZE, nodes_in_use);
 }
 
 double myclock() {
