@@ -41,7 +41,7 @@ int main(int argc, char * argv[])
   FILE *fd;
   char *wordmem, **word, *linemem, **line, *tempwordmem;
   struct Node** hithead;
-  struct Node** hitend;
+  struct Node** hittail;
 
   if(argc != 3){
     printf("Usage: %s <job id> <input size>", argv[0]);
@@ -62,11 +62,11 @@ int main(int argc, char * argv[])
     word[i] = wordmem + i * MAX_KEYWORD_LENGTH;
   }
 
-  // Allocate arrays for
+  // Allocate arrays for the heads and tails of the lists
   hithead = (struct Node**) malloc( maxwords * sizeof(struct Node *) );
-  hitend = (struct Node**) malloc( maxwords * sizeof(struct Node *) );
+  hittail = (struct Node**) malloc( maxwords * sizeof(struct Node *) );
   for( i = 0; i < maxwords; i++ ) {
-    hithead[i] = hitend[i] = node_alloc();
+    hithead[i] = hittail[i] = node_alloc();
   }
 
   // Contiguous memory...yay
@@ -133,7 +133,7 @@ int main(int argc, char * argv[])
     for( i = 0; i < nwords; i++ ) {
       if( strstr( line[k], word[i] ) != NULL ) {
         count[i]++;
-        hitend[i] = add(hitend[i], k);
+        hittail[i] = add(hittail[i], k);
       }
     }
 
@@ -185,7 +185,7 @@ int main(int argc, char * argv[])
   // Linked list counts
   destroyNodePools();
   free(hithead);
-  free(hitend);
+  free(hittail);
 
   // Words
   free(word);
