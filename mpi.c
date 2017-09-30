@@ -66,7 +66,7 @@ int main(int argc, char * argv[])
    count = (int *) calloc( MAX_WORDS, sizeof( int ) );
 
    // Init node pools
-   initNodePools();
+   allocateNodePools();
 
    // Contiguous memory ftw
    wordmem = malloc(MAX_WORDS * MAX_KEYWORD_LENGTH * sizeof(char));
@@ -181,7 +181,7 @@ if(rank == 0)
 
    // Linked list counts
    printf("Freeing stuff\n"); fflush(stdout);
-   cleanUpNodePools();
+   destroyNodePools();
    printf("Node pools freed\n"); fflush(stdout);
    //free(hithead); hithead = NULL;
    printf("Head list free\n"); fflush(stdout);
