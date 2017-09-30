@@ -8,6 +8,21 @@
 #define MAX_KEYWORD_LENGTH 10
 #define MAX_LINE_LENGTH 2001
 
+#ifdef VIPER
+   #define WIKI_FILE "/home/k/kmdice/625/hw3/test10-%s.txt"
+   #define KEYWORD_FILE "/home/k/kmdice/625/hw3/keywords.txt"
+   #define OUTPUT_FILE "/home/k/kmdice/625/hw3/output/wiki-%s.out"
+#elif PERSONAL
+   #define WIKI_FILE "/home/kevin/625/hw3/test10-%s.txt"
+   #define KEYWORD_FILE "/home/kevin/625/hw3/keywords.txt"
+   #define OUTPUT_FILE "/home/kevin/625/hw3/output/wiki-%s.out"
+#else
+   #define WIKI_FILE "/homes/kmdice/625/hw3/test10-%s.txt"
+   #define KEYWORD_FILE "/homes/kmdice/625/hw3/keywords.txt"
+   #define OUTPUT_FILE "/homes/kmdice/625/hw3/output/wiki-%s.out"
+#endif
+
+
 double myclock();
 
 int compare(const void* a, const void* b) {
@@ -65,7 +80,7 @@ int main(int argc, char * argv[])
 
 // Read in the dictionary words
 
-   fd = fopen( "/homes/kmdice/625/hw3/keywords.txt", "r" );
+   fd = fopen( KEYWORD_FILE, "r" );
    nwords = -1;
    do {
       err = fscanf( fd, "%[^\n]\n", word[++nwords] );
@@ -78,7 +93,7 @@ int main(int argc, char * argv[])
 // Read in the lines from the data file
 
    char *input_file = (char*)malloc(50 * sizeof(char));
-   sprintf(input_file, "/homes/kmdice/625/hw3/test10-%s.txt", argv[2]);
+   sprintf(input_file, WIKI_FILE, argv[2]);
    fd = fopen( input_file, "r" );
    nlines = -1;
    do {
@@ -119,7 +134,7 @@ int main(int argc, char * argv[])
 // Dump out the word counts
 
    char *output_file = (char*)malloc(50 * sizeof(char));
-   sprintf(output_file, "/homes/kmdice/625/hw3/output/wiki-%s.out", argv[1]);
+   sprintf(output_file, OUTPUT_FILE, argv[1]);
    fd = fopen( output_file, "w" );
    for( i = 0; i < nwords; i++ ) {
       if(count[i] != 0){
