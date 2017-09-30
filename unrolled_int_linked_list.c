@@ -6,7 +6,7 @@
 #define MAX_ELEMENTS 128
 #endif
 
-#define MEMORY_POOL_SIZE 100000
+#define MEMORY_POOL_SIZE 25600
 #define MAX_NUM_MEMORY_POOLS 1000
 
 /*
@@ -22,7 +22,6 @@
 *
 */
 
-
 int num_node_pools = 0;
 struct Node **node_pools;
 int current_node_count = 0;
@@ -36,7 +35,7 @@ struct Node
   struct Node *next;
 };
 
-// Allocat a node pool
+// Allocate a node pool
 void allocateNewPool()
 {
   node_pools[num_node_pools++] = malloc(MEMORY_POOL_SIZE * sizeof(struct Node));
@@ -71,10 +70,14 @@ void cleanUpNodePools()
   for(i = 0; i < num_node_pools; i++)
   {
     free(node_pools[i]);
-    node_pools[i] = 0;
+    node_pools[i] = NULL;
     printf("%d\n", num_node_pools); fflush(stdout);
   }
   free(node_pools);
+  node_pools = NULL;
+  num_node_pools = 0;
+  current_node_count = 0;
+  nodes_in_use = 0;
 }
 
 
@@ -84,7 +87,7 @@ void printUnrolledList(struct Node *n)
   while (n != NULL)
   {
     int i;
-    for (i=0; i< n->numElements; i++)
+    for (i = 0; i < n->numElements; i++)
     {
       printf("%d\n", n->array[i]);
     }
@@ -108,7 +111,7 @@ int getLength(struct Node *n)
 void toArray(struct Node *n, int **array, int *length)
 {
   *length = getLength(n);
-  *array =  (int *) calloc(*length, sizeof(int));
+  *array =  (int *) malloc(*length * sizeof(int));
 
   int pos = 0;
   while (n != NULL)
@@ -146,13 +149,13 @@ struct Node* add(struct Node *n, int x)
 }
 
 // Destroy a list given the head node
-void destroy(struct Node *n)
-{
-  while (n != NULL)
-  {
-    struct Node* next = n->next;
-    //printf("Destroying node with first element %d\n", n->array[0]);
-    free(n);
-    n = next;
-  }
-}
+// void destroy(struct Node *n)
+// {
+//   while (n != NULL)
+//   {
+//     struct Node* next = n->next;
+//     //printf("Destroying node with first element %d\n", n->array[0]);
+//     free(n);
+//     n = next;
+//   }
+// }
