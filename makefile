@@ -1,4 +1,4 @@
-all: serial mpi unit_test
+all: serial mpi test_linked_list
 
 serial: serial.c
 	cc serial.c -o serial
@@ -6,5 +6,5 @@ serial: serial.c
 mpi: mpi.c
 	mpicc mpi.c -o mpi
 
-unit_test: unit_test.c
-	cc unit_test.c -O0 -o unit_test
+test_linked_list: test_linked_list.c
+	cc test_linked_list.c -O0 -o test_linked_list

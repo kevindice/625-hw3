@@ -22,9 +22,9 @@
 *
 */
 
-int num_node_pools = 0;
-struct Node **node_pools;
-int current_node_count = 0;
+struct Node **_npools;
+int _num_node_pools = 0;
+int _current_node_count = 0;
 int nodes_in_use = 0;
 
 // Unrolled Linked List Node
@@ -36,47 +36,47 @@ struct Node
 };
 
 // Allocate a node pool
-void allocateNewPool()
+void _allocateNewPool()
 {
-  node_pools[num_node_pools++] = malloc(MEMORY_POOL_SIZE * sizeof(struct Node));
-  current_node_count = 0;
+  _npools[_num_node_pools++] = malloc(MEMORY_POOL_SIZE * sizeof(struct Node));
+  _current_node_count = 0;
 }
 
 // Init node pool array and allocate first pool
-void initNodePools()
+void allocateNodePools()
 {
   // Allocate our pool of nodes
-  num_node_pools = 0;
-  current_node_count = 0;
-  node_pools = (struct Node **) malloc(MAX_NUM_MEMORY_POOLS * sizeof(struct Node *));
-  allocateNewPool();
+  _num_node_pools = 0;
+  _current_node_count = 0;
+  _npools = (struct Node **) malloc(MAX_NUM_MEMORY_POOLS * sizeof(struct Node *));
+  _allocateNewPool();
 }
 
 // Deal out space for a node from contiguous memory pool
 struct Node* node_alloc()
 {
-  if(current_node_count == MEMORY_POOL_SIZE)
+  if(_current_node_count == MEMORY_POOL_SIZE)
   {
-    allocateNewPool();
+    _allocateNewPool();
   }
   nodes_in_use++;
-  return &(node_pools[num_node_pools - 1][current_node_count++]);
+  return &(_npools[_num_node_pools - 1][_current_node_count++]);
 }
 
 // Cleanup after ourselves
-void cleanUpNodePools()
+void destroyNodePools()
 {
   int i;
-  for(i = 0; i < num_node_pools; i++)
+  for(i = 0; i < _num_node_pools; i++)
   {
-    free(node_pools[i]);
-    node_pools[i] = NULL;
-    printf("%d\n", num_node_pools); fflush(stdout);
+    free(_npools[i]);
+    _npools[i] = NULL;
+    printf("%d\n", _num_node_pools); fflush(stdout);
   }
-  free(node_pools);
-  node_pools = NULL;
-  num_node_pools = 0;
-  current_node_count = 0;
+  free(_npools);
+  _npools = NULL;
+  _num_node_pools = 0;
+  _current_node_count = 0;
   nodes_in_use = 0;
 }
 
@@ -89,8 +89,9 @@ void printUnrolledList(struct Node *n)
     int i;
     for (i = 0; i < n->numElements; i++)
     {
-      printf("%d\n", n->array[i]);
+      printf("%d, ", n->array[i]);
     }
+    printf("\n");
     n = n->next;
   }
 }

@@ -52,8 +52,8 @@ int main(int argc, char * argv[])
 
   count = (int *) calloc( maxwords, sizeof( int ) );
 
-  // Init node pools
-  initNodePools();
+  // Allocate node pools
+  allocNodePools();
 
   // Contiguous memory ftw
   wordmem = malloc(maxwords * MAX_KEYWORD_LENGTH * sizeof(char));
@@ -155,7 +155,7 @@ int main(int argc, char * argv[])
   // Clean up after ourselves
 
   // Linked list counts
-  cleanUpNodePools();
+  destroyNodePools();
   free(hithead);
   free(hitend);
 

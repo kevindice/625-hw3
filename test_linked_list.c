@@ -6,7 +6,7 @@
 // Test various functions of the linked list implimentation
 int main()
 {
-  initNodePools();
+  allocateNodePools();
 
   struct Node* head = NULL;
   struct Node* second = NULL;
@@ -67,7 +67,7 @@ int main()
   }
   free(my_array);
 
-  cleanUpNodePools();
+  destroyNodePools();
 
   return 0;
 }
