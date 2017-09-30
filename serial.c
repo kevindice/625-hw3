@@ -133,21 +133,24 @@ int main(int argc, char * argv[])
 
   char *output_file = (char*)malloc(50 * sizeof(char));
   sprintf(output_file, OUTPUT_FILE, argv[1]);
+
   fd = fopen( output_file, "w" );
-  for( i = 0; i < nwords; i++ ) {
-    if(count[i] != 0){
-      fprintf( fd, "%s: ", word[i] );
-      int *line_numbers;
-      int len;
-      toArray(hithead[i], &line_numbers, &len);
-      for (k = 0; k < len - 1; k++) {
-        fprintf( fd, "%d, ", line_numbers[k]);
+    for( i = 0; i < nwords; i++ ) {
+      if(count[i] != 0){
+        fprintf( fd, "%s: ", word[i] );
+        int *line_numbers;
+        int len;
+        toArray(hithead[i], &line_numbers, &len);
+        for (k = 0; k < len - 1; k++) {
+          fprintf( fd, "%d, ", line_numbers[k]);
+        }
+        fprintf( fd, "%d\n", line_numbers[len - 1]);
+        free(line_numbers);
       }
-      fprintf( fd, "%d\n", line_numbers[len - 1]);
-      free(line_numbers);
     }
-  }
   fclose( fd );
+
+  free(output_file);
 
   // Clean up after ourselves
 
