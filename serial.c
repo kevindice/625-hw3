@@ -147,8 +147,6 @@ int main(int argc, char * argv[])
       free(line_numbers);
     }
   }
-  fprintf( fd, "The serial run took %lf seconds for %d words over %d lines\n",
-  ttotal, nwords, nlines);
   fclose( fd );
 
   // Clean up after ourselves
