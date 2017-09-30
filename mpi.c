@@ -217,7 +217,6 @@ int main(int argc, char * argv[])
 
   // Clean up after ourselves
 
-  MPI_Finalize();
 
   // Linked list counts
   destroyNodePools();
@@ -240,6 +239,9 @@ int main(int argc, char * argv[])
        ttotal, nwords, nlines, argv[3], argv[4], argv[5]);
     fflush(stdout);
   }
+
+  MPI_Finalize();
+  return 0;
 }
 
 double myclock() {
