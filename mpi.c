@@ -11,11 +11,11 @@
 #define MAX_WORDS 50000
 #define MAX_LINES 1000000
 
-#define WIKI_FILE "/home/k/kmdice/625/hw3/test10-%s.txt"
-#define KEYWORD_FILE "/home/k/kmdice/625/hw3/keywords.txt"
-#define OUTPUT_FILE "/home/k/kmdice/625/hw3/output/wiki-%s-part-%03d.out"
-
-#ifndef VIPER
+#ifdef VIPER
+   #define WIKI_FILE "/home/k/kmdice/625/hw3/test10-%s.txt"
+   #define KEYWORD_FILE "/home/k/kmdice/625/hw3/keywords.txt"
+   #define OUTPUT_FILE "/home/k/kmdice/625/hw3/output/wiki-%s-part-%03d.out"
+#else
    #define WIKI_FILE "/homes/kmdice/625/hw3/test10-%s.txt"
    #define KEYWORD_FILE "/homes/kmdice/625/hw3/keywords.txt"
    #define OUTPUT_FILE "/homes/kmdice/625/hw3/output/wiki-%s-part-%03d.out"
