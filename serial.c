@@ -33,8 +33,6 @@ int compare(const void* a, const void* b) {
 
 int main(int argc, char * argv[])
 {
- /*  int nwords, maxwords = 50000;
-   int nwords, maxwords = 50000; */
    int nwords, maxwords = 50000;
    int nlines, maxlines = 1000000;
    int i, k, n, err, *count;
