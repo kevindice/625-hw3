@@ -39,7 +39,7 @@ int main(int argc, char * argv[])
   double nchars = 0;
   double tstart, ttotal;
   FILE *fd;
-  char *wordmem, **word, *linemem, **line;
+  char *wordmem, **word, *linemem, **line, *tempwordmem;
   struct Node** hithead;
   struct Node** hitend;
 
@@ -55,13 +55,14 @@ int main(int argc, char * argv[])
   // Allocate node pools
   allocateNodePools();
 
-  // Contiguous memory ftw
+  // Contiguous memory for words
   wordmem = malloc(maxwords * MAX_KEYWORD_LENGTH * sizeof(char));
   word = (char **) malloc( maxwords * sizeof( char * ) );
   for(i = 0; i < maxwords; i++){
     word[i] = wordmem + i * MAX_KEYWORD_LENGTH;
   }
 
+  // Allocate arrays for
   hithead = (struct Node**) malloc( maxwords * sizeof(struct Node *) );
   hitend = (struct Node**) malloc( maxwords * sizeof(struct Node *) );
   for( i = 0; i < maxwords; i++ ) {
@@ -87,6 +88,25 @@ int main(int argc, char * argv[])
 
   printf( "Read in %d words\n", nwords);
 
+  // sort and copy back to original contiguous memory
+  //
+  // qsort throws your pointers around and doesn't sort your
+  // strings in place.  To do this, we sort, copy over to temp memory
+  // by accessing our shuffled/sorted (depends on your perspective)
+  // pointers, memcpy back to original memory block
+
+  qsort(word, nwords, sizeof(char *), compare);
+  tempwordmem = malloc(maxwords * MAX_KEYWORD_LENGTH * sizeof(char));
+  int j;
+  for(i = 0; i < maxwords; i++){
+    for(j = 0; j < MAX_KEYWORD_LENGTH; j++){
+      *(tempwordmem + i * MAX_KEYWORD_LENGTH + j) = word[i][j];
+    }
+    word[i] = wordmem + i * MAX_KEYWORD_LENGTH;
+  }
+  memcpy(wordmem, tempwordmem, maxwords * MAX_KEYWORD_LENGTH);
+  free(tempwordmem);
+  tempwordmem = NULL;
 
   // Read in the lines from the data file
 
@@ -102,12 +122,6 @@ int main(int argc, char * argv[])
   free(input_file);
 
   printf( "Read in %d lines averaging %.0lf chars/line\n", nlines, nchars / nlines);
-
-
-  // sort
-
-  qsort(word, nwords, sizeof(char *), compare);
-
 
   // Loop over the word list
 
