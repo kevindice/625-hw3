@@ -105,8 +105,7 @@ int main(int argc, char * argv[])
     word[i] = wordmem + i * MAX_KEYWORD_LENGTH;
   }
   memcpy(wordmem, tempwordmem, maxwords * MAX_KEYWORD_LENGTH);
-  free(tempwordmem);
-  tempwordmem = NULL;
+  free(tempwordmem); tempwordmem = NULL;
 
   // Read in the lines from the data file
 
@@ -119,7 +118,7 @@ int main(int argc, char * argv[])
     if( line[nlines] != NULL ) nchars += (double) strlen( line[nlines] );
   } while( err != EOF && nlines < maxlines);
   fclose( fd );
-  free(input_file);
+  free(input_file); input_file = NULL;
 
   printf( "Read in %d lines averaging %.0lf chars/line\n", nlines, nchars / nlines);
 
@@ -159,14 +158,12 @@ int main(int argc, char * argv[])
           fprintf( fd, "%d, ", line_numbers[k]);
         }
         fprintf( fd, "%d\n", line_numbers[len - 1]);
-        free(line_numbers);
-        line_numbers = NULL;
+        free(line_numbers);  line_numbers = NULL;
       }
     }
   fclose( fd );
 
-  free(output_file);
-  output_file = NULL;
+  free(output_file);  output_file = NULL;
 
   printf("\n\n\n"
     "Unrolled linked list stats:\n\n"
@@ -184,16 +181,16 @@ int main(int argc, char * argv[])
 
   // Linked list counts
   destroyNodePools();
-  free(hithead);
-  free(hittail);
+  free(hithead);  hithead = NULL;
+  free(hittail);  hittail = NULL;
 
   // Words
-  free(word);
-  free(wordmem);
+  free(word);     word = NULL;
+  free(wordmem);  wordmem = NULL;
 
   // Lines
-  free(line);
-  free(linemem);
+  free(line);     line = NULL;
+  free(linemem);  linemem = NULL;
 }
 
 double myclock() {
