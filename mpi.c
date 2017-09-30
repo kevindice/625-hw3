@@ -127,7 +127,7 @@ int main(int argc, char * argv[])
 
   // Read in the lines from the data file
 
-  char *input_file = (char*)malloc(50 * sizeof(char));
+  char *input_file = (char*)malloc(500 * sizeof(char));
   sprintf(input_file, WIKI_FILE, argv[2]);
   fd = fopen( input_file, "r" );
   nlines = -1;
@@ -169,7 +169,7 @@ int main(int argc, char * argv[])
 
   // Dump out the word counts
 
-  char *output_file = (char*) malloc(50 * sizeof(char));
+  char *output_file = (char*) malloc(500 * sizeof(char));
   sprintf(output_file, OUTPUT_FILE, argv[1], rank);
 
   fd = fopen( output_file, "w" );
