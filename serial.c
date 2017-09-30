@@ -97,10 +97,9 @@ int main(int argc, char * argv[])
 
   qsort(word, nwords, sizeof(char *), compare);
   tempwordmem = malloc(maxwords * MAX_KEYWORD_LENGTH * sizeof(char));
-  int j;
   for(i = 0; i < maxwords; i++){
-    for(j = 0; j < MAX_KEYWORD_LENGTH; j++){
-      *(tempwordmem + i * MAX_KEYWORD_LENGTH + j) = word[i][j];
+    for(k = 0; k < MAX_KEYWORD_LENGTH; k++){
+      *(tempwordmem + i * MAX_KEYWORD_LENGTH + k) = word[i][k];
     }
     word[i] = wordmem + i * MAX_KEYWORD_LENGTH;
   }
