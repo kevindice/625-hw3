@@ -149,7 +149,7 @@ int main(int argc, char * argv[])
   ttotal = myclock() - tstart;
   printf( "The serial run took %lf seconds for %d words over %d lines\n",
   ttotal, nwords, nlines);
-  printf("DATA\t%tf\t%s\t%d\t%s", ttotal, argv[1], nlines, argv[2]);
+  printf("DATA\t%lf\t%s\t%d\t%s", ttotal, argv[1], nlines, argv[2]);
 
   // Dump out the word counts
 

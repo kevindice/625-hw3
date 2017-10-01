@@ -11,3 +11,4 @@ output/*
 linked_list_test
 unit_test
 test_linked_list
+*.tar.gz

@@ -154,6 +154,7 @@ int main(int argc, char * argv[])
   if(rank == 0)
   {
     printf("Read in and MPI comm overhead for %d lines and %d procs = %lf seconds\n", nlines, numtasks, myclock() - tlast);
+    printf("OHEAD\t%d\t%d\t%lf\t%s\t%s", nlines, numtasks, myclock() -tlast, argv[3], argv[5]);
     printf("\n******  Starting work  ******\n\n");
   }
   tlast = myclock();
