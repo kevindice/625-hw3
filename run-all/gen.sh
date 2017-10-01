@@ -9,19 +9,9 @@ timemap[32]="0:28:00"
 timemap[48]="0:24:00"
 timemap[64]="0:20:00"
 
-for x in 1 2 3
-do
-echo "qsub -N 'serial$x' -pe single 1 -l h_rt=${timemap[1]} serial-run.sh"
-done;
-
 for x in 16 20 32 48 64
 do
 echo "qsub -N 'mpi-fill$x' -pe mpi-fill $x -l h_rt=${timemap[$x]} mpi-run.sh"
-done;
-
-for x in 2 4 8 16 20 32 48 64
-do
-echo "qsub -N 'mpi-spread$x' -pe mpi-spread $x -l h_rt=${timemap[$x]} mpi-run.sh"
 done;
 
 for x in 16 32 64
@@ -34,7 +24,18 @@ do
 echo "qsub -N 'mpi-4-$x' -pe mpi-4 $x -l h_rt=${timemap[$x]} mpi-run.sh"
 done;
 
+for x in 2 4 8 16 20 32 48 64
+do
+echo "qsub -N 'mpi-spread$x' -pe mpi-spread $x -l h_rt=${timemap[$x]} mpi-run.sh"
+done;
+
 for x in 2 4 8 16
 do
 echo "qsub -N 'mpi-$x-$x' -pe mpi-$x $x -l h_rt=${timemap[$x]} mpi-run.sh"
 done;
+
+for x in 1 2 3
+do
+echo "qsub -N 'serial$x' -pe single 1 -l h_rt=${timemap[1]} serial-run.sh"
+done;
+
