@@ -71,7 +71,6 @@ void destroyNodePools()
   {
     free(_npools[i]);
     _npools[i] = NULL;
-    printf("%d\n", _num_node_pools); fflush(stdout);
   }
   free(_npools);
   _npools = NULL;

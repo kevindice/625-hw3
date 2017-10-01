@@ -11,15 +11,15 @@
 #ifdef VIPER
 #define WIKI_FILE "/home/k/kmdice/625/hw3/test10-%s.txt"
 #define KEYWORD_FILE "/home/k/kmdice/625/hw3/keywords.txt"
-#define OUTPUT_FILE "/home/k/kmdice/625/hw3/output/wiki-%s.out"
+#define OUTPUT_FILE "/home/k/kmdice/625/hw3/output/wiki-%s-%s.out"
 #elif PERSONAL
 #define WIKI_FILE "/home/kevin/625/hw3/test10-%s.txt"
 #define KEYWORD_FILE "/home/kevin/625/hw3/keywords.txt"
-#define OUTPUT_FILE "/home/kevin/625/hw3/output/wiki-%s.out"
+#define OUTPUT_FILE "/home/kevin/625/hw3/output/wiki-%s-%s.out"
 #else
 #define WIKI_FILE "/homes/kmdice/625/hw3/test10-%s.txt"
 #define KEYWORD_FILE "/homes/kmdice/625/hw3/keywords.txt"
-#define OUTPUT_FILE "/homes/kmdice/625/hw3/output/wiki-%s.out"
+#define OUTPUT_FILE "/homes/kmdice/625/hw3/output/wiki-%s-%s.out"
 #endif
 
 
@@ -95,6 +95,8 @@ int main(int argc, char * argv[])
   // by accessing our shuffled/sorted (depends on your perspective)
   // pointers, memcpy back to original memory block
 
+  printf( "Success, %d words have been read in\n", nwords);
+
   qsort(word, nwords, sizeof(char *), compare);
   tempwordmem = malloc(maxwords * MAX_KEYWORD_LENGTH * sizeof(char));
   for(i = 0; i < maxwords; i++){
@@ -106,11 +108,18 @@ int main(int argc, char * argv[])
   memcpy(wordmem, tempwordmem, maxwords * MAX_KEYWORD_LENGTH);
   free(tempwordmem); tempwordmem = NULL;
 
+  printf("%d words have been sorted\n", nwords);
+
   // Read in the lines from the data file
 
-  char *input_file = (char*)malloc(50 * sizeof(char));
+  char *input_file = (char*)malloc(500 * sizeof(char));
   sprintf(input_file, WIKI_FILE, argv[2]);
+  printf("The input file is: %s\n", input_file);
   fd = fopen( input_file, "r" );
+  if(fd == NULL)
+  {
+      printf("File not found!\n"); fflush(stdout); exit(1);
+  }
   nlines = -1;
   do {
     err = fscanf( fd, "%[^\n]\n", line[++nlines] );
@@ -143,8 +152,8 @@ int main(int argc, char * argv[])
 
   // Dump out the word counts
 
-  char *output_file = (char*) malloc(50 * sizeof(char));
-  sprintf(output_file, OUTPUT_FILE, argv[1]);
+  char *output_file = (char*) malloc(500 * sizeof(char));
+  sprintf(output_file, OUTPUT_FILE, argv[1], argv[2]);
 
   fd = fopen( output_file, "w" );
     for( i = 0; i < nwords; i++ ) {
