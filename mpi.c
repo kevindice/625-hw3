@@ -93,49 +93,56 @@ int main(int argc, char * argv[])
   }
 
 
-  // Read in the dictionary words
+  // Read in the dictionary words and sort them
 
-  fd = fopen( KEYWORD_FILE, "r" );
-  nwords = -1;
-  do {
-    err = fscanf( fd, "%[^\n]\n", word[++nwords] );
-  } while( err != EOF && nwords < maxwords );
-  fclose( fd );
+  if(rank == 0)
+  {
+    fd = fopen( KEYWORD_FILE, "r" );
+    nwords = -1;
+    do {
+      err = fscanf( fd, "%[^\n]\n", word[++nwords] );
+    } while( err != EOF && nwords < maxwords );
+    fclose( fd );
 
-  printf( "Read in %d words\n", nwords);
+    printf( "Read in %d words\n", nwords);
 
-  // sort and copy back to original contiguous memory
-  //
-  // qsort throws your pointers around and doesn't sort your
-  // strings in place.  To do this, we sort, copy over to temp memory
-  // by accessing our shuffled/sorted (depends on your perspective)
-  // pointers, memcpy back to original memory block
+    // sort and copy back to original contiguous memory
+    //
+    // qsort throws your pointers around and doesn't sort your
+    // strings in place.  To do this, we sort, copy over to temp memory
+    // by accessing our shuffled/sorted (depends on your perspective)
+    // pointers, memcpy back to original memory block
 
-  qsort(word, nwords, sizeof(char *), compare);
-  tempwordmem = malloc(maxwords * MAX_KEYWORD_LENGTH * sizeof(char));
-  for(i = 0; i < maxwords; i++){
-    for(k = 0; k < MAX_KEYWORD_LENGTH; k++){
-      *(tempwordmem + i * MAX_KEYWORD_LENGTH + k) = word[i][k];
+    qsort(word, nwords, sizeof(char *), compare);
+    tempwordmem = malloc(maxwords * MAX_KEYWORD_LENGTH * sizeof(char));
+    for(i = 0; i < maxwords; i++){
+      for(k = 0; k < MAX_KEYWORD_LENGTH; k++){
+        *(tempwordmem + i * MAX_KEYWORD_LENGTH + k) = word[i][k];
+      }
+      word[i] = wordmem + i * MAX_KEYWORD_LENGTH;
     }
-    word[i] = wordmem + i * MAX_KEYWORD_LENGTH;
+    memcpy(wordmem, tempwordmem, maxwords * MAX_KEYWORD_LENGTH);
+    free(tempwordmem); tempwordmem = NULL;
   }
-  memcpy(wordmem, tempwordmem, maxwords * MAX_KEYWORD_LENGTH);
-  free(tempwordmem); tempwordmem = NULL;
+
 
   // Read in the lines from the data file
 
-  char *input_file = (char*)malloc(500 * sizeof(char));
-  sprintf(input_file, WIKI_FILE, argv[2]);
-  fd = fopen( input_file, "r" );
-  nlines = -1;
-  do {
-    err = fscanf( fd, "%[^\n]\n", line[++nlines] );
-    if( line[nlines] != NULL ) nchars += (double) strlen( line[nlines] );
-  } while( err != EOF && nlines < maxlines);
-  fclose( fd );
-  free(input_file); input_file = NULL;
+  if(rank = 0)
+  {
+    char *input_file = (char*)malloc(500 * sizeof(char));
+    sprintf(input_file, WIKI_FILE, argv[2]);
+    fd = fopen( input_file, "r" );
+    nlines = -1;
+    do {
+      err = fscanf( fd, "%[^\n]\n", line[++nlines] );
+      if( line[nlines] != NULL ) nchars += (double) strlen( line[nlines] );
+    } while( err != EOF && nlines < maxlines);
+    fclose( fd );
+    free(input_file); input_file = NULL;
 
-  printf( "Read in %d lines averaging %.0lf chars/line\n", nlines, nchars / nlines);
+    printf( "Read in %d lines averaging %.0lf chars/line\n", nlines, nchars / nlines);
+  }
 
   // Broadcast data
     MPI_Bcast(&nwords, 1, MPI_INT, 0, MPI_COMM_WORLD);
