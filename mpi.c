@@ -250,8 +250,8 @@ int main(int argc, char * argv[])
   {
     sleep(1);
     fflush(stdout);
-    printf( "DATA\t%lf\t%d\t%d\t%s\t%s\t%s\n",
-       ttotal, nwords, nlines, argv[3], argv[4], argv[5]);
+    printf( "DATA\t%lf\t%d\t%d\t%s\t%s\t%s\t%s\n",
+       ttotal, nwords, nlines, argv[2], argv[3], argv[4], argv[5]);
     fflush(stdout);
   }
 
