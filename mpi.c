@@ -60,12 +60,9 @@ int main(int argc, char * argv[])
      return -1;
   }
 
-  // Set up timing
-  if(rank == 0)
-  {
-     tstart = myclock();  // Set the zero time
-     tstart = myclock();  // Start the clock
-  }
+  // Set up timing for ALL cores
+  tstart = myclock();  // Set the zero time
+  tstart = myclock();  // Start the clock
 
   // Malloc space for the word list and lines
 
@@ -145,6 +142,12 @@ int main(int argc, char * argv[])
     MPI_Bcast(&nlines, 1, MPI_INT, 0, MPI_COMM_WORLD);
     MPI_Bcast(wordmem, nwords * MAX_KEYWORD_LENGTH, MPI_CHAR, 0, MPI_COMM_WORLD);
     MPI_Bcast(linemem, nlines * MAX_LINE_LENGTH, MPI_CHAR, 0, MPI_COMM_WORLD);
+
+  if(rank == 0)
+  {
+    printf("Read in and MPI comm overhead = %lf seconds\n", myclock() - tstart);
+    printf("\n******  Starting work  ******\n\n");
+  }
 
   // Division of work
     start = rank * (nwords/numtasks);
