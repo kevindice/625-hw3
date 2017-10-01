@@ -164,12 +164,12 @@ int main(int argc, char * argv[])
 
   free(output_file);  output_file = NULL;
 
-  printf("\n\n\n"
+  printf("\n\n========\n"
     "Unrolled linked list stats:\n\n"
     "Node Pools: %d\n"
     "Current Node Count: %d\n"
     "Total Nodes Allocated: %d\n"
-    "Nodes in Use: %d",
+    "Nodes in Use: %d\n=========\n",
     _num_node_pools,
     _current_node_count,
     _num_node_pools * MEMORY_POOL_SIZE,
