@@ -167,8 +167,8 @@ int main(int argc, char * argv[])
     }
   }
 
-  printf("PART_DONE\trank %d\tafter %lf seconds\twith %s slots\ton %s hosts\twith pe %s\n",
-      rank, myclock() - tstart, argv[4], argv[5], argv[3]);
+  printf("\n\nPART_DONE\trank %d\tafter %lf seconds\twith %s slots\ton %s hosts\twith pe %s\n",
+      rank, myclock() - tstart, argv[4], argv[5], argv[3]); fflush(stdout);
 
   // Dump out the word counts
 
@@ -199,14 +199,7 @@ int main(int argc, char * argv[])
 
   // Take end time when all are finished writing the file
 
-  MPI_Barrier(MPI_COMM_WORLD);
-
-  if(rank == 0)
-  {
-    ttotal = myclock() - tstart;
-  }
-
-  printf("\n\n================\n"
+  printf("================\n"
     "Rank %d --- Unrolled linked list stats:\n\n"
     "Node Pools: %d\n"
     "Current Node Count: %d\n"
@@ -218,7 +211,15 @@ int main(int argc, char * argv[])
     _current_node_count,
     _num_node_pools * MEMORY_POOL_SIZE,
     nodes_in_use
-  );
+  ); fflush(stdout);
+
+  MPI_Barrier(MPI_COMM_WORLD);
+
+  if(rank == 0)
+  {
+    ttotal = myclock() - tstart;
+  }
+
 
   // Clean up after ourselves
 
