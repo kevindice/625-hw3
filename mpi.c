@@ -128,7 +128,7 @@ int main(int argc, char * argv[])
 
   // Read in the lines from the data file
 
-  if(rank = 0)
+  if(rank == 0)
   {
     char *input_file = (char*)malloc(500 * sizeof(char));
     sprintf(input_file, WIKI_FILE, argv[2]);
