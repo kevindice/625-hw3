@@ -2,6 +2,7 @@
 #$ -l mem=3G
 #$ -q \*@@elves
 #$ -cwd
+#$ -j y
 #$ -m abe
 #$ -M kevin.dice1@gmail.com
 
