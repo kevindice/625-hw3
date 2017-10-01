@@ -39,7 +39,7 @@ int main(int argc, char * argv[])
   int i, k, n, err, *count;
   double nchars = 0;
   int start, end;
-  double tstart, ttotal;
+  double tstart, ttotal, tlast;
   FILE *fd;
   char *wordmem, **word, *linemem, **line, *tempwordmem;
   struct Node** hithead;
@@ -63,6 +63,7 @@ int main(int argc, char * argv[])
   // Set up timing for ALL cores
   tstart = myclock();  // Set the zero time
   tstart = myclock();  // Start the clock
+  tlast = tstart;
 
   // Malloc space for the word list and lines
 
@@ -152,9 +153,10 @@ int main(int argc, char * argv[])
 
   if(rank == 0)
   {
-    printf("Read in and MPI comm overhead for %d lines and %d procs = %lf seconds\n", nlines, numtasks, myclock() - tstart);
+    printf("Read in and MPI comm overhead for %d lines and %d procs = %lf seconds\n", nlines, numtasks, myclock() - tlast);
     printf("\n******  Starting work  ******\n\n");
   }
+  tlast = myclock();
 
   // Division of work
     start = rank * (nwords/numtasks);
@@ -175,7 +177,7 @@ int main(int argc, char * argv[])
   }
 
   printf("\n\nPART_DONE\trank %d\tafter %lf seconds\twith %s slots\ton %s hosts\twith pe %s\n",
-      rank, myclock() - tstart, argv[4], argv[5], argv[3]); fflush(stdout);
+      rank, myclock() - tlast, argv[4], argv[5], argv[3]); fflush(stdout);
 
   // Dump out the word counts
 
