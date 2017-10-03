@@ -42,17 +42,23 @@ int main(int argc, char * argv[])
    char **word, **line, *linemem, *wordmem, *tempwordmem;
    struct Node** hithead;
    struct Node** hittail;
+   omp_lock_t locks[maxwords];
 
    if(argc != 4){
       printf("Usage: %s <job id> <input size> <number of threads>", argv[0]);
       return -1;
    }
 
+   for(i = 0; i < maxwords; i++){
+      omp_init_lock(&(locks[i]));
+   }
+
+
    // Set up timing
    tstart = myclock(); // Set the zero time
    tstart = myclock(); // Start the clock
    tlast = tstart;
-   printf("Timing started"); fflush(stdout);
+   printf("Timing started\n"); fflush(stdout);
 
 // Malloc space for the word list and lines
 
@@ -85,7 +91,6 @@ int main(int argc, char * argv[])
 
 
 // Read in the dictionary words
-
    fd = fopen( KEYWORD_FILE, "r" );
    nwords = -1;
    do {
@@ -110,7 +115,9 @@ int main(int argc, char * argv[])
 // Read in the lines from the data file
 
    char *input_file = (char*) malloc(500 * sizeof(char));
+   printf("Input file: %s\n", WIKI_FILE); fflush(stdout);
    sprintf(input_file, WIKI_FILE, argv[2]);
+   printf("Input file: %s\n", input_file); fflush(stdout);
    fd = fopen( input_file, "r" );
    nlines = -1;
    do {
@@ -133,8 +140,10 @@ int main(int argc, char * argv[])
    for( k = 0; k < nlines; k++ ) {
       for( i = 0; i < nwords; i++ ) {
          if( strstr( line[k], word[i] ) != NULL ) {
-	    count[i]++;
+            omp_set_lock(&(locks[i]));
+            count[i]++;
 	    hittail[i] = add(hittail[i], k);
+	    omp_unset_lock(&(locks[i]));
 	 } 
       }
 
@@ -181,6 +190,11 @@ int main(int argc, char * argv[])
    // Lines
    free(line); line = NULL;
    free(linemem); linemem = NULL;
+
+   // Destroy locks
+   for(i = 0; i < maxwords; i++){
+     omp_destroy_lock(&(locks[i]));
+   }
 
 // Output
    printf("DATA\t%lf\t%d\t%d\t%d\n", ttotal, nwords, nlines, nthreads);
