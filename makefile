@@ -12,10 +12,7 @@ else
 	FLAGS := -D BEOCAT
 endif
 
-all: serial mpi test_linked_list openmp
-
-openmp: omp.c unrolled_int_linked_list.c
-	cc omp.c -fopenmp -o omp $(FLAGS)
+all: serial mpi test_linked_list
 
 serial: serial.c unrolled_int_linked_list.c
 	cc serial.c -o serial $(FLAGS)
