@@ -50,7 +50,7 @@ int main(int argc, char * argv[])
    }
 
    for(i = 0; i < maxwords; i++){
-      omp_init_lock(&(locks[i]));
+ //     omp_init_lock(&(locks[i]));
    }
 
 
@@ -140,10 +140,10 @@ int main(int argc, char * argv[])
    for( k = 0; k < nlines; k++ ) {
       for( i = 0; i < nwords; i++ ) {
          if( strstr( line[k], word[i] ) != NULL ) {
-            omp_set_lock(&(locks[i]));
+   //         omp_set_lock(&(locks[i]));
             count[i]++;
 	    hittail[i] = add(hittail[i], k);
-	    omp_unset_lock(&(locks[i]));
+//	    omp_unset_lock(&(locks[i]));
 	 } 
       }
 
@@ -193,7 +193,7 @@ int main(int argc, char * argv[])
 
    // Destroy locks
    for(i = 0; i < maxwords; i++){
-     omp_destroy_lock(&(locks[i]));
+  //   omp_destroy_lock(&(locks[i]));
    }
 
 // Output
