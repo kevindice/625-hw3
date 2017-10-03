@@ -6,11 +6,16 @@ else ifeq ($(HOST), viper)
 	FLAGS := -D VIPER
 else ifeq ($(HOST), cougar)
 	FLAGS := -D VIPER
+else ifeq ($(HOST), beretta)
+	FLAGS := -D VIPER
 else
 	FLAGS := -D BEOCAT
 endif
 
-all: serial mpi test_linked_list
+all: serial mpi test_linked_list openmp
+
+openmp: omp.c unrolled_int_linked_list.c
+	cc omp.c -fopenmp -o omp $(FLAGS)
 
 serial: serial.c unrolled_int_linked_list.c
 	cc serial.c -o serial $(FLAGS)
